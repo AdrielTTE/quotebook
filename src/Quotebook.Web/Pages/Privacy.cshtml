@@ -1,8 +1,23 @@
-﻿@page
+@page
 @model PrivacyModel
-@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
+@{ ViewData["Title"] = "Privacy"; }
 
-<p>Use this page to detail your site's privacy policy.</p>
+<h1>Privacy</h1>
+
+<p>Quotebook is a portfolio demo by Adriel Tang, not a commercial service. Please don't enter real customer, banking or personal details.</p>
+
+<h2 class="h5 mt-4">What is stored</h2>
+<ul>
+    <li>If you create an account: your name, email address and a hashed password (the password itself is never stored).</li>
+    <li>Whatever you type into the app: customers, quotations, invoices and payments.</li>
+    <li>A cookie that keeps you signed in, and a security cookie that protects forms. There is no advertising or analytics tracking.</li>
+</ul>
+
+<h2 class="h5 mt-4">Who can see it</h2>
+<p>Other users of the app can't see your data. The data lives in a PostgreSQL database hosted on Neon, and the app runs on Render. As the person running the demo, I can technically read the database, so treat anything you enter as visible to me.</p>
+
+<h2 class="h5 mt-4">The demo business</h2>
+<p>The "Try the demo" account is shared by every visitor. Its data is sample data and is wiped and refilled every 6 hours.</p>
+
+<h2 class="h5 mt-4">Deleting your data</h2>
+<p>To have an account and its data removed, email <a href="mailto:adrieltangte@gmail.com">adrieltangte@gmail.com</a>.</p>

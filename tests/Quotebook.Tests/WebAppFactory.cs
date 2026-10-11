@@ -15,7 +15,11 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>
 
     // Program.cs reads the connection string while it builds the host, before test configuration is applied,
     // so it has to come from the environment. Any value turns the database-backed setup on; it never connects.
-    static WebAppFactory() => Environment.SetEnvironmentVariable("ConnectionStrings__Default", "Host=unused;Database=unused");
+    static WebAppFactory()
+    {
+        Environment.SetEnvironmentVariable("ConnectionStrings__Default", "Host=unused;Database=unused");
+        Environment.SetEnvironmentVariable("Demo__Enabled", "true"); // seeds the demo business at startup
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

@@ -31,6 +31,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<MalaysiaTimeProvider>();
+builder.Services.AddSingleton<AppFeatures>();
+
+// Behind the host's HTTPS proxy the antiforgery cookie must be Secure too (the sign-in cookie already is).
+builder.Services.AddAntiforgery(o => o.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always);
 builder.Services.AddScoped<ITenantProvider, ClaimsTenantProvider>();
 
 // Connection string comes from user-secrets in development and an environment
@@ -57,6 +61,12 @@ if (hasDatabase)
         })
         .AddEntityFrameworkStores<QuotebookDbContext>()
         .AddClaimsPrincipalFactory<TenantClaimsFactory>();
+
+    if (builder.Configuration.GetValue<bool>("Demo:Enabled"))
+    {
+        builder.Services.AddSingleton<DemoSeeder>();
+        builder.Services.AddHostedService<DemoResetService>();
+    }
 
     builder.Services.ConfigureApplicationCookie(o =>
     {
@@ -89,6 +99,14 @@ if (hasDatabase)
         await scope.ServiceProvider.GetRequiredService<QuotebookDbContext>().Database.MigrateAsync();
     }
     await RoleSeeder.SeedAsync(app.Services);
+
+    if (app.Configuration.GetValue<bool>("Demo:Enabled"))
+    {
+        // Fill the demo business now. If the database is asleep or unreachable, log it and still start;
+        // the six-hourly reset will fill it later.
+        try { await app.Services.GetRequiredService<DemoSeeder>().ResetAsync(); }
+        catch (Exception e) { app.Logger.LogError(e, "Could not seed the demo business at startup."); }
+    }
 }
 
 app.UseForwardedHeaders();

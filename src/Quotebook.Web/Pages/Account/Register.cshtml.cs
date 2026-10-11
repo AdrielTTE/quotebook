@@ -4,11 +4,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Quotebook.Core;
 using Quotebook.Data;
+using Quotebook.Web.Infrastructure;
 
 namespace Quotebook.Web.Pages.Account;
 
-public class RegisterModel(UserManager<ApplicationUser> users, SignInManager<ApplicationUser> signIn) : PageModel
+public class RegisterModel(UserManager<ApplicationUser> users, SignInManager<ApplicationUser> signIn, AppFeatures features) : PageModel
 {
+    /// <summary>False on a public demo that has closed open sign-up.</summary>
+    public bool Open => features.RegistrationOpen;
+    public bool DemoEnabled => features.DemoEnabled;
+
     [BindProperty] public InputModel Input { get; set; } = new();
 
     public class InputModel
@@ -24,6 +29,7 @@ public class RegisterModel(UserManager<ApplicationUser> users, SignInManager<App
 
     public async Task<IActionResult> OnPostAsync()
     {
+        if (!features.RegistrationOpen) return NotFound();
         if (!ModelState.IsValid) return Page();
 
         // A new sign-up opens a new business and is its owner, so the business id is the user's own id.

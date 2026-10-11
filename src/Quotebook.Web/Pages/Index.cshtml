@@ -1,10 +1,60 @@
-﻿@page
+@page
 @model IndexModel
-@{
-    ViewData["Title"] = "Home page";
-}
+@inject Quotebook.Web.Infrastructure.AppFeatures Features
+@{ ViewData["Title"] = "Quotations and invoices for small businesses"; }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="py-4">
+    <h1 class="display-5 fw-bold">Quotebook</h1>
+    <p class="lead col-lg-8">
+        Write a quotation, get it accepted, turn it into an invoice, and track who has paid.
+        Built for small service businesses like aircon servicers, renovators and photographers.
+    </p>
+
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-page="/Dashboard" class="btn btn-primary btn-lg">Open your dashboard</a>
+        }
+        else
+        {
+            @if (Features.DemoEnabled)
+            {
+                <form method="post" asp-page="/Account/Demo"><button type="submit" class="btn btn-primary btn-lg">Try the demo</button></form>
+            }
+            <a asp-page="/Account/Login" class="btn btn-outline-secondary btn-lg">Sign in</a>
+            @if (Features.RegistrationOpen)
+            {
+                <a asp-page="/Account/Register" class="btn btn-outline-secondary btn-lg">Create account</a>
+            }
+        }
+    </div>
+    @if (Features.DemoEnabled && User.Identity?.IsAuthenticated != true)
+    {
+        <p class="text-muted small">
+            One click, no sign-up. The demo business is full of sample data and resets itself every 6 hours.
+            It runs on free hosting, so the first load after a quiet spell can take up to a minute while the server wakes up.
+        </p>
+    }
+</section>
+
+<section class="row g-4 py-3">
+    <div class="col-md-4">
+        <h2 class="h5">Quote to cash</h2>
+        <p class="text-muted">Draft, send, accept or reject. An accepted quotation becomes an invoice with one click, with its lines copied across.</p>
+    </div>
+    <div class="col-md-4">
+        <h2 class="h5">Payments that add up</h2>
+        <p class="text-muted">Record deposits and instalments. Each invoice shows Unpaid, Partial, Paid or Overdue, and the dashboard shows what is owed and what is late.</p>
+    </div>
+    <div class="col-md-4">
+        <h2 class="h5">Your data stays yours</h2>
+        <p class="text-muted">Every business sees only its own customers, quotes and invoices. Owners manage everything; staff can record payments but not remove them.</p>
+    </div>
+</section>
+
+<section class="py-3 text-muted">
+    <p class="mb-1">
+        A portfolio project by <a href="https://appliedtheory.asia">Adriel Tang</a>, built with ASP.NET Core 10, EF Core and PostgreSQL.
+        <a href="https://github.com/AdrielTTE/quotebook">Read the code on GitHub</a>.
+    </p>
+</section>

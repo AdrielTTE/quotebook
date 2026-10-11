@@ -3,6 +3,18 @@
 @{ ViewData["Title"] = "Create your account"; }
 
 <h1>Create your account</h1>
+
+@if (!Model.Open)
+{
+    <div class="alert alert-info col-md-6">
+        Sign-up is closed on this demo.
+        @if (Model.DemoEnabled)
+        {
+            <form method="post" asp-page="Demo" class="mt-2"><button type="submit" class="btn btn-primary">Try the demo instead</button></form>
+        }
+    </div>
+    return;
+}
 <p class="text-muted">Signing up opens your own business space. Nobody else can see your customers, quotes or invoices.</p>
 
 <form method="post" class="col-md-5" novalidate>

@@ -139,4 +139,19 @@ public class QuoteTests
         q.Accept(Today);
         Assert.Throws<DomainException>(() => q.ConvertToInvoice("INV-1", Today, Today.AddDays(-1)));
     }
+
+    [Fact]
+    public void Conversion_keeps_the_customer_even_when_the_customer_is_not_saved_yet()
+    {
+        var customer = new Customer { Name = "Unsaved" };
+        var q = DraftQuote();
+        q.CustomerId = 0;
+        q.Customer = customer;
+        q.Send();
+        q.Accept(Today);
+
+        var inv = q.ConvertToInvoice("INV-1", Today, Today.AddDays(30));
+
+        Assert.Same(customer, inv.Customer);
+    }
 }

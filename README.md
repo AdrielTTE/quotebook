@@ -30,6 +30,8 @@ A quotation and invoice tracker for small service businesses, built to show how 
 - **Payments cannot overpay, even under a race.** A payment is a new child row, so the invoice row is touched too, forcing an UPDATE that moves `xmin`. Two simultaneous full payments were fired at real Postgres: exactly one was recorded.
 - **Staff can record payments; only the owner can remove them.** Enforced in the page handler, not only by hiding the button, and covered by a test with a forged request.
 - **Overdue is never stored.** It is worked out from the due date, today and the payments, so it cannot go stale overnight.
+- **A one-click demo that cleans up after itself.** The demo owner has a random password nobody knows; **Try the demo** signs in for them. The seeder wipes and refills that one business every 6 hours, and never touches any other.
+- **In-memory tests have blind spots.** A foreign-key bug in quote-to-invoice conversion only showed up when the demo seeder ran on real Postgres, so it now has its own unit test.
 - **A sign-up creates a business and its Owner.** The business id travels in the sign-in cookie as a claim. Roles are Owner (settings) and Staff (day-to-day work).
 - **Passwords: length over character rules** (10+ characters, lockout after 5 failures, one message for wrong email or wrong password).
 - **Pages are private by default.** A fallback authorization policy requires sign-in; public pages opt out explicitly.
@@ -49,6 +51,8 @@ The app ships as a Docker image (`Dockerfile`). Settings it reads from the envir
 | `ConnectionStrings__Default` | Npgsql connection string for the Neon database (direct host, `SSL Mode=Require`) |
 | `MigrateOnStart` | `true` to apply EF migrations when the app starts |
 | `ASPNETCORE_ENVIRONMENT` | `Production` |
+| `Demo__Enabled` | `true` to seed a demo business, show **Try the demo** and reset it every 6 hours |
+| `Registration__Enabled` | `false` to close open sign-up on a public demo (default `true`) |
 
 The app listens on port 10000 and trusts the host's forwarded headers, so the Secure sign-in cookie works behind Render's HTTPS proxy. CI (`.github/workflows/ci.yml`) builds and runs all tests on every push.
 

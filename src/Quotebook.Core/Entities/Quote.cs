@@ -54,6 +54,7 @@ public class Quote
             OwnerId = OwnerId,
             Number = invoiceNumber,
             CustomerId = CustomerId,
+            Customer = Customer, // keeps the link when the customer is not saved yet (CustomerId would still be 0)
             Quote = this,
             IssuedOn = issuedOn,
             DueOn = dueOn,
