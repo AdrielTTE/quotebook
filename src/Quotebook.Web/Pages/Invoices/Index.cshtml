@@ -1,0 +1,44 @@
+@page
+@model Quotebook.Web.Pages.Invoices.IndexModel
+@using Quotebook.Core.Entities
+@using Quotebook.Web.Infrastructure
+@{ ViewData["Title"] = "Invoices"; }
+
+<h1>Invoices</h1>
+<p class="text-muted">Create an invoice from an accepted quotation.</p>
+
+<ul class="nav nav-pills mb-3">
+    <li class="nav-item"><a class="nav-link @(Model.Status is null ? "active" : "")" asp-page="Index">All</a></li>
+    @foreach (var s in Enum.GetValues<InvoiceStatus>())
+    {
+        <li class="nav-item"><a class="nav-link @(Model.Status == s ? "active" : "")" asp-page="Index" asp-route-status="@s">@s</a></li>
+    }
+</ul>
+
+@if (Model.Rows.Count == 0)
+{
+    <p class="text-muted">No invoices here yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr><th>Number</th><th>Customer</th><th>Status</th><th>Due</th><th class="text-end">Total (RM)</th><th class="text-end">Balance (RM)</th></tr>
+            </thead>
+            <tbody>
+            @foreach (var r in Model.Rows)
+            {
+                <tr>
+                    <td><a asp-page="Details" asp-route-id="@r.Invoice.Id">@r.Invoice.Number</a></td>
+                    <td>@r.Invoice.Customer?.Name</td>
+                    <td><span class="badge text-bg-@r.Status.BadgeClass()">@r.Status</span></td>
+                    <td>@r.Invoice.DueOn.ToString("d MMM yyyy")</td>
+                    <td class="text-end">@r.Invoice.Total.Rm()</td>
+                    <td class="text-end">@r.Invoice.Balance.Rm()</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

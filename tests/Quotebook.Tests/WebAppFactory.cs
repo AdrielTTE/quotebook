@@ -33,6 +33,46 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>
         });
     }
 
+    sealed class FixedTenant(string id) : Quotebook.Core.ITenantProvider
+    {
+        public string? TenantId { get; } = id;
+    }
+
+    /// <summary>Opens the app's in-memory database acting as one business, for seeding data the pages can't create.</summary>
+    public async Task WithDbAsync(string tenantId, Func<QuotebookDbContext, Task> work)
+    {
+        using var db = new QuotebookDbContext(
+            new DbContextOptionsBuilder<QuotebookDbContext>().UseInMemoryDatabase(dbName).Options,
+            new FixedTenant(tenantId));
+        await work(db);
+    }
+
+    /// <summary>The business id of a registered owner (an owner's business id is their own user id).</summary>
+    public async Task<string> TenantOfAsync(string email)
+    {
+        using var scope = Services.CreateScope();
+        var users = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>>();
+        return (await users.FindByEmailAsync(email))!.TenantId;
+    }
+
+    /// <summary>Creates a Staff user inside an existing business and returns a client signed in as them.</summary>
+    public async Task<HttpClient> StaffClientAsync(string tenantId)
+    {
+        var email = $"staff-{Guid.NewGuid():N}@example.com";
+        using (var scope = Services.CreateScope())
+        {
+            var users = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>>();
+            var staff = new ApplicationUser { UserName = email, Email = email, DisplayName = "Staff", TenantId = tenantId };
+            Assert.True((await users.CreateAsync(staff, "correct-horse-battery")).Succeeded);
+            await users.AddToRoleAsync(staff, Quotebook.Core.Roles.Staff);
+        }
+
+        var client = NewClient();
+        var response = await PostFormAsync(client, "/Account/Login", new() { ["Input.Email"] = email, ["Input.Password"] = "correct-horse-battery" });
+        Assert.Equal(System.Net.HttpStatusCode.Redirect, response.StatusCode);
+        return client;
+    }
+
     public HttpClient NewClient() => CreateClient(new WebApplicationFactoryClientOptions
     {
         AllowAutoRedirect = false,

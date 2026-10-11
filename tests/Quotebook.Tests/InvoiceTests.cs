@@ -90,4 +90,21 @@ public class InvoiceTests
         inv.AddPayment(33.333m, Issued);
         Assert.Equal(33.33m, inv.Paid);
     }
+
+    [Fact]
+    public void Removing_a_payment_restores_the_balance_and_status()
+    {
+        var inv = Invoice100();
+        var payment = inv.AddPayment(100m, Issued);
+        Assert.Equal(InvoiceStatus.Paid, inv.StatusOn(Issued));
+
+        inv.RemovePayment(payment.Id);
+
+        Assert.Equal(100m, inv.Balance);
+        Assert.Equal(InvoiceStatus.Unpaid, inv.StatusOn(Issued));
+    }
+
+    [Fact]
+    public void Removing_a_payment_that_is_not_on_the_invoice_fails()
+        => Assert.Throws<DomainException>(() => Invoice100().RemovePayment(999));
 }

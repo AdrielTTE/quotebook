@@ -20,13 +20,13 @@ public class QuotePagesTests : IClassFixture<WebAppFactory>
         return client;
     }
 
-    static async Task<HttpResponseMessage> PostAsync(HttpClient client, string tokenPage, string url, Dictionary<string, string> fields)
+    internal static async Task<HttpResponseMessage> PostAsync(HttpClient client, string tokenPage, string url, Dictionary<string, string> fields)
     {
         fields["__RequestVerificationToken"] = await WebAppFactory.TokenFromAsync(client, tokenPage);
         return await client.PostAsync(url, new FormUrlEncodedContent(fields));
     }
 
-    static async Task<int> AddCustomerAsync(HttpClient client, string name)
+    internal static async Task<int> AddCustomerAsync(HttpClient client, string name)
     {
         var response = await WebAppFactory.PostFormAsync(client, "/Customers/Edit", new() { ["Input.Name"] = name });
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
@@ -36,7 +36,7 @@ public class QuotePagesTests : IClassFixture<WebAppFactory>
         return int.Parse(row.Groups[1].Value);
     }
 
-    static Dictionary<string, string> QuoteForm(int customerId, params (string Description, decimal Qty, decimal Price)[] lines)
+    internal static Dictionary<string, string> QuoteForm(int customerId, params (string Description, decimal Qty, decimal Price)[] lines)
     {
         var fields = new Dictionary<string, string>
         {
@@ -55,7 +55,7 @@ public class QuotePagesTests : IClassFixture<WebAppFactory>
     }
 
     /// <summary>Creates a quotation and returns its details-page path (e.g. /Quotes/Details/7).</summary>
-    static async Task<string> AddQuoteAsync(HttpClient client, int customerId, params (string, decimal, decimal)[] lines)
+    internal static async Task<string> AddQuoteAsync(HttpClient client, int customerId, params (string, decimal, decimal)[] lines)
     {
         lines = lines.Length == 0 ? [("Aircon service", 2m, 80m)] : lines;
         var response = await WebAppFactory.PostFormAsync(client, "/Quotes/Edit", QuoteForm(customerId, lines));
@@ -64,7 +64,7 @@ public class QuotePagesTests : IClassFixture<WebAppFactory>
         return location.IsAbsoluteUri ? location.AbsolutePath : location.OriginalString;
     }
 
-    static Task<HttpResponseMessage> ActAsync(HttpClient client, string detailsPath, string handler)
+    internal static Task<HttpResponseMessage> ActAsync(HttpClient client, string detailsPath, string handler)
         => PostAsync(client, detailsPath, $"{detailsPath}?handler={handler}", new());
 
     // ---- customers ----

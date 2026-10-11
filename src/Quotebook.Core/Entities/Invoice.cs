@@ -39,4 +39,13 @@ public class Invoice
         Payments.Add(payment);
         return payment;
     }
+
+    /// <summary>Takes back a payment entered by mistake. The balance and status follow automatically.</summary>
+    public Payment RemovePayment(int paymentId)
+    {
+        var payment = Payments.FirstOrDefault(p => p.Id == paymentId)
+            ?? throw new DomainException("That payment is not on this invoice.");
+        Payments.Remove(payment);
+        return payment;
+    }
 }

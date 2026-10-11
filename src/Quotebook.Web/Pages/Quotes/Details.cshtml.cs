@@ -27,6 +27,34 @@ public class DetailsModel(QuotebookDbContext db, MalaysiaTimeProvider clock) : P
     public Task<IActionResult> OnPostAcceptAsync(int id) => Transition(id, q => q.Accept(clock.Today), "Quotation accepted.");
     public Task<IActionResult> OnPostRejectAsync(int id) => Transition(id, q => q.Reject(), "Quotation rejected.");
 
+    /// <summary>Turns an accepted quotation into an invoice and opens it.</summary>
+    public async Task<IActionResult> OnPostInvoiceAsync(int id, DateOnly? dueOn)
+    {
+        var quote = await Load(id, track: true);
+        if (quote is null) return NotFound();
+
+        try
+        {
+            var invoiceNumber = await DocumentNumbers.NextAsync(db.Invoices.Select(i => i.Number), "INV");
+            var invoice = quote.ConvertToInvoice(invoiceNumber, clock.Today, dueOn ?? clock.Today.AddDays(30));
+            db.Invoices.Add(invoice); // OwnerId comes from the quote; the DbContext checks it matches the business
+            await db.SaveChangesAsync();
+            TempData["Message"] = $"{invoice.Number} created from {quote.Number}.";
+            return RedirectToPage("/Invoices/Details", new { id = invoice.Id });
+        }
+        catch (DomainException e)
+        {
+            Error = e.Message;
+        }
+        catch (DbUpdateException)
+        {
+            // The unique index on Invoices.QuoteId: a second click, or a second tab, got there first.
+            Error = "This quotation has already been invoiced.";
+        }
+
+        return RedirectToPage(new { id });
+    }
+
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
         var quote = await Load(id, track: true);
@@ -70,7 +98,7 @@ public class DetailsModel(QuotebookDbContext db, MalaysiaTimeProvider clock) : P
 
     Task<Quote?> Load(int id, bool track)
     {
-        var query = db.Quotes.Include(q => q.Customer).Include(q => q.Lines).AsQueryable();
+        var query = db.Quotes.Include(q => q.Customer).Include(q => q.Lines).Include(q => q.Invoice).AsQueryable();
         if (!track) query = query.AsNoTracking();
         return query.FirstOrDefaultAsync(q => q.Id == id);
     }

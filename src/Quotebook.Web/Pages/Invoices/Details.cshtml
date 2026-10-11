@@ -1,0 +1,114 @@
+@page "{id:int}"
+@model Quotebook.Web.Pages.Invoices.DetailsModel
+@using Quotebook.Core
+@using Quotebook.Core.Entities
+@using Quotebook.Web.Infrastructure
+@{
+    var inv = Model.Invoice;
+    ViewData["Title"] = inv.Number;
+}
+
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div>
+        <h1 class="mb-1">@inv.Number</h1>
+        <span class="badge text-bg-@Model.Status.BadgeClass()">@Model.Status</span>
+    </div>
+    <a asp-page="Index" class="btn btn-link">All invoices</a>
+</div>
+
+@if (Model.Message is not null) { <div class="alert alert-success">@Model.Message</div> }
+@if (Model.Error is not null) { <div class="alert alert-danger">@Model.Error</div> }
+
+<dl class="row">
+    <dt class="col-sm-3">Customer</dt><dd class="col-sm-9">@inv.Customer?.Name</dd>
+    <dt class="col-sm-3">Issued</dt><dd class="col-sm-9">@inv.IssuedOn.ToString("d MMM yyyy")</dd>
+    <dt class="col-sm-3">Payment due</dt><dd class="col-sm-9">@inv.DueOn.ToString("d MMM yyyy")</dd>
+    @if (inv.Quote is not null)
+    {
+        <dt class="col-sm-3">From quotation</dt>
+        <dd class="col-sm-9"><a asp-page="/Quotes/Details" asp-route-id="@inv.Quote.Id">@inv.Quote.Number</a></dd>
+    }
+</dl>
+
+<div class="table-responsive">
+    <table class="table">
+        <thead><tr><th>Description</th><th class="text-end">Qty</th><th class="text-end">Unit price</th><th class="text-end">Amount</th></tr></thead>
+        <tbody>
+        @foreach (var line in inv.Lines)
+        {
+            <tr>
+                <td>@line.Description</td>
+                <td class="text-end">@line.Quantity.ToString("0.###")</td>
+                <td class="text-end">@line.UnitPrice.Rm()</td>
+                <td class="text-end">@line.Total.Rm()</td>
+            </tr>
+        }
+        </tbody>
+        <tfoot>
+            <tr><th colspan="3" class="text-end">Total (RM)</th><th class="text-end">@inv.Total.Rm()</th></tr>
+            <tr><td colspan="3" class="text-end">Paid</td><td class="text-end">@inv.Paid.Rm()</td></tr>
+            <tr><th colspan="3" class="text-end">Balance (RM)</th><th class="text-end">@inv.Balance.Rm()</th></tr>
+        </tfoot>
+    </table>
+</div>
+
+<h2 class="h5 mt-4">Payments</h2>
+@if (inv.Payments.Count == 0)
+{
+    <p class="text-muted">No payments yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead><tr><th>Date</th><th>Note</th><th class="text-end">Amount (RM)</th>@if (User.IsInRole(Roles.Owner)) { <th></th> }</tr></thead>
+            <tbody>
+            @foreach (var p in inv.Payments.OrderBy(p => p.PaidOn).ThenBy(p => p.Id))
+            {
+                <tr>
+                    <td>@p.PaidOn.ToString("d MMM yyyy")</td>
+                    <td>@p.Note</td>
+                    <td class="text-end">@p.Amount.Rm()</td>
+                    @if (User.IsInRole(Roles.Owner))
+                    {
+                        <td class="text-end">
+                            <form method="post" asp-page-handler="DeletePayment" asp-route-id="@inv.Id" asp-route-paymentId="@p.Id"
+                                  onsubmit="return confirm('Remove this payment?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                            </form>
+                        </td>
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (inv.Balance > 0)
+{
+    <h2 class="h5 mt-4">Record a payment</h2>
+    <form method="post" asp-page-handler="Payment" asp-route-id="@inv.Id" class="row g-2 align-items-end" novalidate>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-6 col-md-3">
+            <label asp-for="Payment.Amount" class="form-label">Amount (RM)</label>
+            <input asp-for="Payment.Amount" class="form-control" inputmode="decimal" />
+            <span asp-validation-for="Payment.Amount" class="text-danger"></span>
+        </div>
+        <div class="col-6 col-md-3">
+            <label asp-for="Payment.PaidOn" class="form-label">Paid on</label>
+            <input asp-for="Payment.PaidOn" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Payment.Note" class="form-label">Note <span class="text-muted">(optional)</span></label>
+            <input asp-for="Payment.Note" class="form-control" />
+        </div>
+        <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Record</button></div>
+    </form>
+}
+else
+{
+    <p class="text-success mt-3">Fully paid. Thank you.</p>
+}
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
