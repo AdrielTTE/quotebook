@@ -1,0 +1,27 @@
+@page
+@model LoginModel
+@{ ViewData["Title"] = "Sign in"; }
+
+<h1>Sign in</h1>
+
+<form method="post" class="col-md-5" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Input.Email" class="form-label">Email</label>
+        <input asp-for="Input.Email" class="form-control" autocomplete="username" />
+        <span asp-validation-for="Input.Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Password" class="form-label">Password</label>
+        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" />
+        <span asp-validation-for="Input.Password" class="text-danger"></span>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="Input.RememberMe" class="form-check-input" />
+        <label asp-for="Input.RememberMe" class="form-check-label">Keep me signed in</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Sign in</button>
+    <a asp-page="Register" class="btn btn-link">Create an account</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

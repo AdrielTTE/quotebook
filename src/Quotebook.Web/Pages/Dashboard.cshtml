@@ -1,0 +1,15 @@
+@page
+@using Microsoft.AspNetCore.Identity
+@using Quotebook.Data
+@inject UserManager<ApplicationUser> Users
+@{
+    ViewData["Title"] = "Dashboard";
+    var me = await Users.GetUserAsync(User);
+}
+
+<h1>Dashboard</h1>
+<p>Signed in as <strong>@me?.DisplayName</strong>. Customers, quotes and invoices will appear here.</p>
+@if (User.IsInRole("Owner"))
+{
+    <p><a asp-page="/Settings">Business settings</a></p>
+}

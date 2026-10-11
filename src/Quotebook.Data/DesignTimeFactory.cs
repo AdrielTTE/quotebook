@@ -11,6 +11,6 @@ public class DesignTimeFactory : IDesignTimeDbContextFactory<QuotebookDbContext>
         var connection = Environment.GetEnvironmentVariable("QUOTEBOOK_DB")
             ?? "Host=localhost;Database=quotebook;Username=postgres;Password=placeholder"; // never used to connect when only adding migrations
         var options = new DbContextOptionsBuilder<QuotebookDbContext>().UseNpgsql(connection).Options;
-        return new QuotebookDbContext(options);
+        return new QuotebookDbContext(options, new NoTenant());
     }
 }

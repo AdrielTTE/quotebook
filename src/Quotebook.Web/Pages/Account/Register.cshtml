@@ -1,0 +1,34 @@
+@page
+@model RegisterModel
+@{ ViewData["Title"] = "Create your account"; }
+
+<h1>Create your account</h1>
+<p class="text-muted">Signing up opens your own business space. Nobody else can see your customers, quotes or invoices.</p>
+
+<form method="post" class="col-md-5" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Input.DisplayName" class="form-label">Your name</label>
+        <input asp-for="Input.DisplayName" class="form-control" autocomplete="name" />
+        <span asp-validation-for="Input.DisplayName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Email" class="form-label">Email</label>
+        <input asp-for="Input.Email" class="form-control" autocomplete="email" />
+        <span asp-validation-for="Input.Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Password" class="form-label">Password (10+ characters)</label>
+        <input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
+        <span asp-validation-for="Input.Password" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.ConfirmPassword" class="form-label">Confirm password</label>
+        <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" />
+        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Create account</button>
+    <a asp-page="Login" class="btn btn-link">I already have an account</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
