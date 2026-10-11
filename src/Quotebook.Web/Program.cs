@@ -123,7 +123,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthChecks("/health").AllowAnonymous();
-app.MapStaticAssets();
+// Static files are endpoints too, so the require-sign-in fallback policy would send signed-out visitors
+// a redirect to the login page instead of the stylesheet, leaving every public page unstyled.
+app.MapStaticAssets().AllowAnonymous();
 app.MapRazorPages().WithStaticAssets();
 
 app.Run();

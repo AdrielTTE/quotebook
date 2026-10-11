@@ -30,6 +30,28 @@ public class AuthTests : IClassFixture<WebAppFactory>
     }
 
     [Fact]
+    public async Task Signed_out_visitors_get_the_stylesheets_and_scripts_not_a_login_redirect()
+    {
+        // Regression: the require-sign-in fallback policy once covered static files too, so a visitor
+        // who was not signed in got an unstyled page.
+        var client = factory.NewClient();
+        var html = await client.GetStringAsync("/");
+
+        var assets = System.Text.RegularExpressions.Regex
+            .Matches(html, "(?:href|src)=\"(/[^\"]+\\.(?:css|js))\"")
+            .Select(m => m.Groups[1].Value)
+            .ToList();
+        Assert.NotEmpty(assets);
+
+        foreach (var asset in assets)
+        {
+            var response = await client.GetAsync(asset);
+            Assert.True(response.StatusCode == HttpStatusCode.OK, $"{asset} returned {(int)response.StatusCode}");
+            Assert.DoesNotContain("html", response.Content.Headers.ContentType?.MediaType ?? "");
+        }
+    }
+
+    [Fact]
     public async Task Public_pages_do_not_need_sign_in()
     {
         var client = factory.NewClient();
