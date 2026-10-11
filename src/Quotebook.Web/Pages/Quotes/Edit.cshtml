@@ -2,56 +2,56 @@
 @model Quotebook.Web.Pages.Quotes.EditModel
 @{ ViewData["Title"] = Model.Id is null ? "New quotation" : $"Edit {Model.Number}"; }
 
-<h1>@ViewData["Title"]</h1>
+<div class="page-head"><h1>@ViewData["Title"]</h1></div>
 
 @if (Model.Customers.Count == 0)
 {
-    <div class="alert alert-info">You need a customer first. <a asp-page="/Customers/Edit">Add one</a>, then come back.</div>
+    <div class="alert info">You need a customer first. <a asp-page="/Customers/Edit">Add one</a>, then come back.</div>
 }
 
-<form method="post" novalidate>
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<form method="post" class="stack" novalidate>
+    <div asp-validation-summary="ModelOnly" class="field-error"></div>
     <input type="hidden" asp-for="Input.Version" />
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-5">
-            <label asp-for="Input.CustomerId" class="form-label">Customer</label>
-            <select asp-for="Input.CustomerId" asp-items="Model.Customers" class="form-select">
+    <div class="form-grid">
+        <div class="field wide">
+            <label asp-for="Input.CustomerId">Customer</label>
+            <select asp-for="Input.CustomerId" asp-items="Model.Customers">
                 <option value="0">Choose a customer</option>
             </select>
-            <span asp-validation-for="Input.CustomerId" class="text-danger"></span>
+            <span asp-validation-for="Input.CustomerId" class="field-error"></span>
         </div>
-        <div class="col-md-3 col-6">
-            <label asp-for="Input.IssuedOn" class="form-label">Issued</label>
-            <input asp-for="Input.IssuedOn" class="form-control" />
-            <span asp-validation-for="Input.IssuedOn" class="text-danger"></span>
+        <div class="field">
+            <label asp-for="Input.IssuedOn">Issued</label>
+            <input asp-for="Input.IssuedOn" />
+            <span asp-validation-for="Input.IssuedOn" class="field-error"></span>
         </div>
-        <div class="col-md-3 col-6">
-            <label asp-for="Input.ValidUntil" class="form-label">Valid until</label>
-            <input asp-for="Input.ValidUntil" class="form-control" />
-            <span asp-validation-for="Input.ValidUntil" class="text-danger"></span>
+        <div class="field">
+            <label asp-for="Input.ValidUntil">Valid until</label>
+            <input asp-for="Input.ValidUntil" />
+            <span asp-validation-for="Input.ValidUntil" class="field-error"></span>
         </div>
     </div>
-
-    <h2 class="h5">Lines</h2>
-    <div id="lines">
-        <div class="row g-2 text-muted small d-none d-md-flex">
-            <div class="col-md-6">Description</div><div class="col-md-2">Quantity</div><div class="col-md-3">Unit price (RM)</div>
-        </div>
-        @for (var i = 0; i < Model.Input.Lines.Count; i++)
-        {
-            <div class="row g-2 mb-2 line-row">
-                <div class="col-md-6"><input asp-for="Input.Lines[i].Description" class="form-control" placeholder="Description" aria-label="Description" /></div>
-                <div class="col-6 col-md-2"><input asp-for="Input.Lines[i].Quantity" class="form-control" inputmode="decimal" aria-label="Quantity" /></div>
-                <div class="col-6 col-md-3"><input asp-for="Input.Lines[i].UnitPrice" class="form-control" inputmode="decimal" aria-label="Unit price" /></div>
-            </div>
-        }
-    </div>
-    <button type="button" id="add-line" class="btn btn-sm btn-outline-secondary mb-4">Add another line</button>
 
     <div>
-        <button type="submit" class="btn btn-primary">Save quotation</button>
-        <a asp-page="Index" class="btn btn-link">Cancel</a>
+        <h2 style="margin-bottom: 12px;">Lines</h2>
+        <div id="lines">
+            <div class="line-head" aria-hidden="true"><span>Description</span><span>Qty</span><span>Price (RM)</span></div>
+            @for (var i = 0; i < Model.Input.Lines.Count; i++)
+            {
+                <div class="line-row">
+                    <input asp-for="Input.Lines[i].Description" placeholder="Description" aria-label="Description" />
+                    <input asp-for="Input.Lines[i].Quantity" class="money" inputmode="decimal" aria-label="Quantity" />
+                    <input asp-for="Input.Lines[i].UnitPrice" class="money" inputmode="decimal" aria-label="Unit price" />
+                </div>
+            }
+        </div>
+        <button type="button" id="add-line" class="btn secondary small" style="margin-top: 4px;">Add another line</button>
+    </div>
+
+    <div class="actions">
+        <button type="submit" class="btn">Save quotation</button>
+        <a asp-page="Index" class="btn secondary">Cancel</a>
     </div>
 </form>
 

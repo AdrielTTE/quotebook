@@ -1,4 +1,6 @@
 @page
 @{ ViewData["Title"] = "Access denied"; }
-<h1>Access denied</h1>
-<p>Your account does not have permission to open that page.</p>
+
+<div class="page-head"><h1>Access denied</h1></div>
+<p class="muted">Your account does not have permission to open that page.</p>
+<div class="actions"><a asp-page="/Dashboard" class="btn secondary">Back to the dashboard</a></div>

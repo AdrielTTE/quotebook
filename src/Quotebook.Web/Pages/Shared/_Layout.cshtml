@@ -1,86 +1,89 @@
-﻿@inject Quotebook.Web.Infrastructure.AppFeatures Features
+@inject Quotebook.Web.Infrastructure.AppFeatures Features
+@{
+    // Which section is open, for the current-page mark in the navigation.
+    var page = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+    bool In(string section) => page.StartsWith(section, StringComparison.OrdinalIgnoreCase);
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var displayName = User.FindFirst(Quotebook.Web.Infrastructure.TenantClaimsFactory.DisplayNameClaim)?.Value ?? "";
+    var initials = string.Concat(displayName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpperInvariant(w[0])));
+    if (initials.Length == 0) initials = "Q";
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
     <title>@ViewData["Title"] - Quotebook</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Quotebook.Web.styles.css" asp-append-version="true" />
+    <link rel="preload" href="~/fonts/plex-sans-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="~/css/ledger.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Quotebook</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-page="/Dashboard">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-page="/Customers/Index">Customers</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-page="/Quotes/Index">Quotations</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" asp-page="/Invoices/Index">Invoices</a></li>
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item d-flex align-items-center">
-                                <form method="post" asp-page="/Account/Logout" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link text-dark">Sign out</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            @if (Features.DemoEnabled)
-                            {
-                                <li class="nav-item d-flex align-items-center">
-                                    <form method="post" asp-page="/Account/Demo" class="d-inline">
-                                        <button type="submit" class="btn btn-link nav-link text-dark">Try the demo</button>
-                                    </form>
-                                </li>
-                            }
-                            <li class="nav-item"><a class="nav-link text-dark" asp-page="/Account/Login">Sign in</a></li>
-                            @if (Features.RegistrationOpen)
-                            {
-                                <li class="nav-item"><a class="nav-link text-dark" asp-page="/Account/Register">Create account</a></li>
-                            }
-                        }
-                    </ul>
-                </div>
+<body class="@(signedIn ? "has-tabs" : "")">
+    <header class="site-header">
+        <div class="wrap bar">
+            <div class="bar-left">
+                <a class="brand" asp-page="/Index">Quotebook</a>
+                @if (signedIn)
+                {
+                    <nav class="main-nav" aria-label="Main">
+                        <a asp-page="/Dashboard" aria-current="@(In("/Dashboard") ? "page" : null)">
+                            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard
+                        </a>
+                        <a asp-page="/Customers/Index" aria-current="@(In("/Customers") ? "page" : null)">
+                            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 5.2a3.5 3.5 0 0 1 0 6.6"/></svg>Customers
+                        </a>
+                        <a asp-page="/Quotes/Index" aria-current="@(In("/Quotes") ? "page" : null)">
+                            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Quotations
+                        </a>
+                        <a asp-page="/Invoices/Index" aria-current="@(In("/Invoices") ? "page" : null)">
+                            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Invoices
+                        </a>
+                    </nav>
+                }
             </div>
-        </nav>
+            <div class="who">
+                @if (signedIn)
+                {
+                    <span class="name-text">@displayName</span>
+                    <span class="avatar" aria-hidden="true">@initials</span>
+                    <form method="post" asp-page="/Account/Logout" class="inline">
+                        <button type="submit" class="link-button">Sign out</button>
+                    </form>
+                }
+                else
+                {
+                    @if (Features.DemoEnabled)
+                    {
+                        <form method="post" asp-page="/Account/Demo" class="inline">
+                            <button type="submit" class="link-button">Try the demo</button>
+                        </form>
+                    }
+                    <a asp-page="/Account/Login">Sign in</a>
+                    @if (Features.RegistrationOpen)
+                    {
+                        <a asp-page="/Account/Register">Create account</a>
+                    }
+                }
+            </div>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Quotebook (portfolio demo) - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    @* Full-width strip above the page content (the dashboard's ink band). *@
+    @await RenderSectionAsync("Band", required: false)
+
+    <main class="wrap stack">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrap">
+            &copy; 2026 Quotebook, a portfolio demo by <a href="https://appliedtheory.asia">Adriel Tang</a> ·
+            <a asp-page="/Privacy">Privacy</a> ·
+            <a href="https://github.com/AdrielTTE/quotebook">Source</a>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

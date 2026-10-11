@@ -40,10 +40,11 @@ public class DemoTests : IClassFixture<WebAppFactory>
         var response = await QuotePagesTests.PostAsync(client, "/", "/Account/Demo", new());
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
 
-        var html = await client.GetStringAsync("/Dashboard");
-        Assert.Contains("Demo Owner", html);
-        Assert.Contains("RM 2,040.00", html); // owed: 240 + 1,450 + 350
-        Assert.Contains("INV-0001", html);    // the overdue one
+        var text = WebAppFactory.TextOf(await client.GetStringAsync("/Dashboard"));
+        Assert.Contains("Demo Owner", text);
+        Assert.Contains("RM 2,040.00", text); // owed: 240 + 1,450 + 350
+        Assert.Contains("INV-0001 · Ali Aircon Services is 15 days overdue", text);
+        Assert.Contains("Q-0005 · Dewi Catering accepted. Ready to invoice", text);
     }
 
     [Fact]

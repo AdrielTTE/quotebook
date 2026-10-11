@@ -2,42 +2,40 @@
 @model Quotebook.Web.Pages.Customers.IndexModel
 @{ ViewData["Title"] = "Customers"; }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0">Customers</h1>
-    <a asp-page="Edit" class="btn btn-primary">Add customer</a>
+<div class="page-head">
+    <h1>Customers</h1>
+    <div class="actions"><a asp-page="Edit" class="btn">Add customer</a></div>
 </div>
 
-@if (Model.Message is not null) { <div class="alert alert-success">@Model.Message</div> }
-@if (Model.Error is not null) { <div class="alert alert-danger">@Model.Error</div> }
+@if (Model.Message is not null) { <div class="alert success">@Model.Message</div> }
+@if (Model.Error is not null) { <div class="alert danger">@Model.Error</div> }
 
-<form method="get" class="mb-3">
-    <div class="input-group">
-        <input name="q" value="@Model.Q" class="form-control" placeholder="Search by name" aria-label="Search customers" />
-        <button class="btn btn-outline-secondary" type="submit">Search</button>
-    </div>
+<form method="get" class="search">
+    <input type="search" name="q" value="@Model.Q" placeholder="Search by name" aria-label="Search customers" />
+    <button class="btn secondary" type="submit">Search</button>
 </form>
 
 @if (Model.Customers.Count == 0)
 {
-    <p class="text-muted">@(string.IsNullOrWhiteSpace(Model.Q) ? "No customers yet. Add your first one." : "No customers match that search.")</p>
+    <div class="panel"><p class="empty">@(string.IsNullOrWhiteSpace(Model.Q) ? "No customers yet. Add your first one." : "No customers match that search.")</p></div>
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table align-middle">
-            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th class="text-end">Actions</th></tr></thead>
+    <div class="panel table-wrap">
+        <table class="ledger cards">
+            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th class="right">Actions</th></tr></thead>
             <tbody>
             @foreach (var c in Model.Customers)
             {
                 <tr>
-                    <td>@c.Name</td>
-                    <td>@c.Email</td>
-                    <td>@c.Phone</td>
-                    <td class="text-end">
-                        <a asp-page="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
-                        <form method="post" asp-page-handler="Delete" asp-route-id="@c.Id" class="d-inline"
+                    <td class="c-title c-wide">@c.Name</td>
+                    <td class="muted c-ref">@c.Email</td>
+                    <td class="muted c-meta">@c.Phone</td>
+                    <td class="right c-actions">
+                        <a asp-page="Edit" asp-route-id="@c.Id" class="btn secondary small">Edit</a>
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@c.Id" class="inline"
                               onsubmit="return confirm('Delete this customer?');">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            <button type="submit" class="btn danger small">Delete</button>
                         </form>
                     </td>
                 </tr>

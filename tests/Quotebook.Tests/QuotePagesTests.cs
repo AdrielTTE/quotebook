@@ -32,7 +32,7 @@ public class QuotePagesTests : IClassFixture<WebAppFactory>
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
 
         var html = await client.GetStringAsync("/Customers");
-        var row = Regex.Match(html, $@"<td>{Regex.Escape(name)}</td>[\s\S]*?/Customers/Edit/(\d+)");
+        var row = Regex.Match(html, $@"<td[^>]*>{Regex.Escape(name)}</td>[\s\S]*?/Customers/Edit/(\d+)");
         return int.Parse(row.Groups[1].Value);
     }
 
@@ -113,7 +113,7 @@ public class QuotePagesTests : IClassFixture<WebAppFactory>
         var response = await PostAsync(client, "/Customers", $"/Customers?handler=Delete&id={id}", new());
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         // The success banner repeats the name, so look for the table cell.
-        Assert.DoesNotContain("<td>Temporary Customer</td>", await client.GetStringAsync("/Customers"));
+        Assert.DoesNotMatch("<td[^>]*>Temporary Customer</td>", await client.GetStringAsync("/Customers"));
     }
 
     [Fact]

@@ -4,38 +4,42 @@
 @using Quotebook.Web.Infrastructure
 @{ ViewData["Title"] = "Invoices"; }
 
-<h1>Invoices</h1>
-<p class="text-muted">Create an invoice from an accepted quotation.</p>
+<div class="page-head">
+    <div>
+        <h1>Invoices</h1>
+        <p class="sub">Create an invoice from an accepted quotation.</p>
+    </div>
+</div>
 
-<ul class="nav nav-pills mb-3">
-    <li class="nav-item"><a class="nav-link @(Model.Status is null ? "active" : "")" asp-page="Index">All</a></li>
+<ul class="chips" aria-label="Filter by status">
+    <li><a asp-page="Index" aria-current="@(Model.Status is null ? "page" : null)">All</a></li>
     @foreach (var s in Enum.GetValues<InvoiceStatus>())
     {
-        <li class="nav-item"><a class="nav-link @(Model.Status == s ? "active" : "")" asp-page="Index" asp-route-status="@s">@s</a></li>
+        <li><a asp-page="Index" asp-route-status="@s" aria-current="@(Model.Status == s ? "page" : null)">@s.Label()</a></li>
     }
 </ul>
 
 @if (Model.Rows.Count == 0)
 {
-    <p class="text-muted">No invoices here yet.</p>
+    <div class="panel"><p class="empty">No invoices here yet.</p></div>
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table align-middle">
+    <div class="panel table-wrap">
+        <table class="ledger cards">
             <thead>
-                <tr><th>Number</th><th>Customer</th><th>Status</th><th>Due</th><th class="text-end">Total (RM)</th><th class="text-end">Balance (RM)</th></tr>
+                <tr><th>Number</th><th>Customer</th><th>Status</th><th>Due</th><th class="right">Total (RM)</th><th class="right">Balance (RM)</th></tr>
             </thead>
             <tbody>
             @foreach (var r in Model.Rows)
             {
-                <tr>
-                    <td><a asp-page="Details" asp-route-id="@r.Invoice.Id">@r.Invoice.Number</a></td>
-                    <td>@r.Invoice.Customer?.Name</td>
-                    <td><span class="badge text-bg-@r.Status.BadgeClass()">@r.Status</span></td>
-                    <td>@r.Invoice.DueOn.ToString("d MMM yyyy")</td>
-                    <td class="text-end">@r.Invoice.Total.Rm()</td>
-                    <td class="text-end">@r.Invoice.Balance.Rm()</td>
+                <tr class="@(r.Status == InvoiceStatus.Overdue ? "flag" : "")">
+                    <td class="c-ref"><a asp-page="Details" asp-route-id="@r.Invoice.Id" class="ref">@r.Invoice.Number</a></td>
+                    <td class="c-title">@r.Invoice.Customer?.Name</td>
+                    <td class="c-status"><span class="status @r.Status.Css()">@r.Status.Label()</span></td>
+                    <td class="muted c-meta">due @r.Invoice.DueOn.ToString("d MMM yyyy")</td>
+                    <td class="right money c-hide">@r.Invoice.Total.Rm()</td>
+                    <td class="right money c-amount" style="font-weight: 600;">@r.Invoice.Balance.Rm()</td>
                 </tr>
             }
             </tbody>

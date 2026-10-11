@@ -9,6 +9,9 @@ A quotation and invoice tracker for small service businesses, built to show how 
 - EF Core 10 with PostgreSQL (Neon in the demo)
 - xUnit
 
+## Design: Ledger
+Calm and credible, like a finance tool. Cool-grey ground, white panels with hairline rules, status shown as a dot plus a word (never colour alone), and money in tabular monospace (IBM Plex Mono) so columns line up. The dashboard opens with a dark ink band holding one big figure: what you are owed. Invoices and quotations read like documents. On a phone, the main navigation becomes a bottom tab bar and every table turns into one card per row. Fonts are self-hosted, so no third-party requests. Design tokens live at the top of [`ledger.css`](src/Quotebook.Web/wwwroot/css/ledger.css); there is no CSS framework.
+
 ## Structure
 | Project | Job |
 |---|---|

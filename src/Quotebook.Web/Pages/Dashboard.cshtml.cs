@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Quotebook.Core.Entities;
@@ -7,9 +6,11 @@ using Quotebook.Web.Infrastructure;
 
 namespace Quotebook.Web.Pages;
 
-public class DashboardModel(QuotebookDbContext db, UserManager<ApplicationUser> users, MalaysiaTimeProvider clock) : PageModel
+public class DashboardModel(QuotebookDbContext db, MalaysiaTimeProvider clock) : PageModel
 {
-    public string DisplayName { get; private set; } = "";
+    public record InvoiceRow(Invoice Invoice, InvoiceStatus Status);
+
+    public DateOnly Today { get; private set; }
 
     /// <summary>Money still owed on invoices that are not fully paid.</summary>
     public decimal Outstanding { get; private set; }
@@ -26,10 +27,14 @@ public class DashboardModel(QuotebookDbContext db, UserManager<ApplicationUser> 
 
     public List<Invoice> OverdueInvoices { get; private set; } = [];
 
+    /// <summary>Accepted quotations that have not been turned into an invoice yet.</summary>
+    public List<Quote> ReadyToInvoice { get; private set; } = [];
+
+    public List<InvoiceRow> Recent { get; private set; } = [];
+
     public async Task OnGetAsync()
     {
-        DisplayName = (await users.GetUserAsync(User))?.DisplayName ?? "";
-        var today = clock.Today;
+        var today = Today = clock.Today;
 
         // A small business has hundreds of invoices, not millions, so totals are worked out in memory
         // with the same domain rules the rest of the app uses. No SQL copy of those rules to drift.
@@ -48,8 +53,20 @@ public class DashboardModel(QuotebookDbContext db, UserManager<ApplicationUser> 
             .Where(p => p.PaidOn.Year == today.Year && p.PaidOn.Month == today.Month)
             .Sum(p => p.Amount);
 
+        Recent = invoices
+            .OrderByDescending(i => i.IssuedOn).ThenByDescending(i => i.Id)
+            .Take(5)
+            .Select(i => new InvoiceRow(i, i.StatusOn(today)))
+            .ToList();
+
         var sent = await db.Quotes.AsNoTracking().Include(q => q.Lines).Where(q => q.Status == QuoteStatus.Sent).ToListAsync();
         AwaitingReplyCount = sent.Count;
         AwaitingReplyAmount = sent.Sum(q => q.Total);
+
+        ReadyToInvoice = await db.Quotes.AsNoTracking()
+            .Include(q => q.Lines).Include(q => q.Customer)
+            .Where(q => q.Status == QuoteStatus.Accepted && q.Invoice == null)
+            .OrderBy(q => q.IssuedOn)
+            .ToListAsync();
     }
 }

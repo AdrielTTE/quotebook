@@ -113,7 +113,7 @@ public class InvoicePagesTests : IClassFixture<WebAppFactory>
 
         await PayAsync(client, invoice, "60.00", "deposit");
         var partial = await client.GetStringAsync(invoice);
-        Assert.Contains("Partial", partial);
+        Assert.Contains("Partly paid", partial);
         Assert.Contains("deposit", partial);
         Assert.Contains("100.00", partial); // balance left: 160 - 60
 
@@ -246,7 +246,7 @@ public class InvoicePagesTests : IClassFixture<WebAppFactory>
     {
         var (client, _) = await OwnerWithSeededBooksAsync();
 
-        var html = await client.GetStringAsync("/Dashboard");
+        var html = WebAppFactory.TextOf(await client.GetStringAsync("/Dashboard"));
 
         Assert.Contains("RM 250.00", html); // owed: 100 + (200 - 50)
         Assert.Contains("RM 100.00", html); // overdue
@@ -277,7 +277,7 @@ public class InvoicePagesTests : IClassFixture<WebAppFactory>
         await OwnerWithSeededBooksAsync();
 
         var (other, _) = await NewOwnerAsync();
-        var html = await other.GetStringAsync("/Dashboard");
+        var html = WebAppFactory.TextOf(await other.GetStringAsync("/Dashboard"));
 
         Assert.DoesNotContain("RM 250.00", html);
         Assert.DoesNotContain("INV-0001", html);

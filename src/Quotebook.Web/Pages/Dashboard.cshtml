@@ -3,65 +3,107 @@
 @using Quotebook.Web.Infrastructure
 @{ ViewData["Title"] = "Dashboard"; }
 
-<h1>Dashboard</h1>
-<p class="text-muted">Signed in as <strong>@Model.DisplayName</strong>.</p>
+@section Band {
+    <section class="band" aria-label="Totals">
+        <div class="wrap">
+            <div>
+                <span class="eyebrow">Owed to you · @Model.OutstandingCount unpaid @(Model.OutstandingCount == 1 ? "invoice" : "invoices")</span>
+                <span class="big"><span class="cur">RM</span> @Model.Outstanding.Rm()</span>
+            </div>
+            <div class="band-stats">
+                <div class="band-stat">
+                    <span class="label">Overdue · @Model.OverdueCount</span>
+                    <span class="value @(Model.OverdueCount > 0 ? "late" : "")">RM @Model.OverdueAmount.Rm()</span>
+                </div>
+                <div class="band-stat">
+                    <span class="label">Waiting for a reply · @Model.AwaitingReplyCount</span>
+                    <span class="value">RM @Model.AwaitingReplyAmount.Rm()</span>
+                </div>
+                <div class="band-stat">
+                    <span class="label">Collected this month</span>
+                    <span class="value good">RM @Model.CollectedThisMonth.Rm()</span>
+                </div>
+            </div>
+        </div>
+    </section>
+}
 
-<div class="row g-3 mb-4">
-    <div class="col-6 col-lg-3">
-        <div class="card h-100"><div class="card-body">
-            <div class="text-muted small">Owed to you</div>
-            <div class="fs-4 fw-semibold">RM @Model.Outstanding.Rm()</div>
-            <div class="small text-muted">@Model.OutstandingCount unpaid @(Model.OutstandingCount == 1 ? "invoice" : "invoices")</div>
-        </div></div>
+<div class="page-head">
+    <div>
+        <h1>Dashboard</h1>
+        <p class="sub">@Model.Today.ToString("dddd, d MMMM yyyy")</p>
     </div>
-    <div class="col-6 col-lg-3">
-        <div class="card h-100 @(Model.OverdueCount > 0 ? "border-danger" : "")"><div class="card-body">
-            <div class="text-muted small">Overdue</div>
-            <div class="fs-4 fw-semibold @(Model.OverdueCount > 0 ? "text-danger" : "")">RM @Model.OverdueAmount.Rm()</div>
-            <div class="small text-muted">@Model.OverdueCount overdue</div>
-        </div></div>
-    </div>
-    <div class="col-6 col-lg-3">
-        <div class="card h-100"><div class="card-body">
-            <div class="text-muted small">Waiting for a reply</div>
-            <div class="fs-4 fw-semibold">RM @Model.AwaitingReplyAmount.Rm()</div>
-            <div class="small text-muted">@Model.AwaitingReplyCount sent @(Model.AwaitingReplyCount == 1 ? "quotation" : "quotations")</div>
-        </div></div>
-    </div>
-    <div class="col-6 col-lg-3">
-        <div class="card h-100"><div class="card-body">
-            <div class="text-muted small">Collected this month</div>
-            <div class="fs-4 fw-semibold">RM @Model.CollectedThisMonth.Rm()</div>
-        </div></div>
+    <div class="actions">
+        <a asp-page="/Quotes/Edit" class="btn">New quotation</a>
     </div>
 </div>
 
-@if (Model.OverdueInvoices.Count > 0)
-{
-    <h2 class="h5">Overdue invoices</h2>
-    <div class="table-responsive">
-        <table class="table align-middle">
-            <thead><tr><th>Invoice</th><th>Customer</th><th>Due</th><th class="text-end">Balance (RM)</th></tr></thead>
-            <tbody>
-            @foreach (var i in Model.OverdueInvoices)
-            {
-                <tr>
-                    <td><a asp-page="/Invoices/Details" asp-route-id="@i.Id">@i.Number</a></td>
-                    <td>@i.Customer?.Name</td>
-                    <td>@i.DueOn.ToString("d MMM yyyy")</td>
-                    <td class="text-end">@i.Balance.Rm()</td>
-                </tr>
-            }
-            </tbody>
-        </table>
+<section>
+    <div class="section-head"><h2>Needs attention</h2></div>
+    <div class="panel">
+        @if (Model.OverdueInvoices.Count == 0 && Model.ReadyToInvoice.Count == 0)
+        {
+            <p class="empty">Nothing needs your attention. Start with your <a asp-page="/Customers/Index">customers</a>, then write a <a asp-page="/Quotes/Index">quotation</a>.</p>
+        }
+        else
+        {
+            <ul class="attention">
+                @foreach (var i in Model.OverdueInvoices)
+                {
+                    var days = Model.Today.DayNumber - i.DueOn.DayNumber;
+                    <li>
+                        <span class="dot red" aria-hidden="true"></span>
+                        <span class="what"><a asp-page="/Invoices/Details" asp-route-id="@i.Id" class="ref">@i.Number</a> · @i.Customer?.Name is @days @(days == 1 ? "day" : "days") overdue</span>
+                        <span class="act"><span class="money">RM @i.Balance.Rm()</span><a asp-page="/Invoices/Details" asp-route-id="@i.Id">Open</a></span>
+                    </li>
+                }
+                @foreach (var q in Model.ReadyToInvoice)
+                {
+                    <li>
+                        <span class="dot green" aria-hidden="true"></span>
+                        <span class="what"><a asp-page="/Quotes/Details" asp-route-id="@q.Id" class="ref">@q.Number</a> · @q.Customer?.Name accepted. Ready to invoice</span>
+                        <span class="act"><span class="money">RM @q.Total.Rm()</span><a asp-page="/Quotes/Details" asp-route-id="@q.Id">Create invoice</a></span>
+                    </li>
+                }
+            </ul>
+        }
     </div>
-}
-else
-{
-    <p class="text-muted">Nothing overdue. Start with your <a asp-page="/Customers/Index">customers</a>, then write a <a asp-page="/Quotes/Index">quotation</a>.</p>
-}
+</section>
+
+<section>
+    <div class="section-head">
+        <h2>Recent invoices</h2>
+        <a asp-page="/Invoices/Index">View all</a>
+    </div>
+    <div class="panel table-wrap">
+        @if (Model.Recent.Count == 0)
+        {
+            <p class="empty">No invoices yet. Accept a quotation, then create an invoice from it.</p>
+        }
+        else
+        {
+            <table class="ledger cards">
+                <thead>
+                    <tr><th>Invoice</th><th>Customer</th><th>Status</th><th>Due</th><th class="right">Balance (RM)</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var r in Model.Recent)
+                {
+                    <tr class="@(r.Status == Quotebook.Core.Entities.InvoiceStatus.Overdue ? "flag" : "")">
+                        <td class="c-ref"><a asp-page="/Invoices/Details" asp-route-id="@r.Invoice.Id" class="ref">@r.Invoice.Number</a></td>
+                        <td class="c-title">@r.Invoice.Customer?.Name</td>
+                        <td class="c-status"><span class="status @r.Status.Css()">@r.Status.Label()</span></td>
+                        <td class="muted c-meta">due @r.Invoice.DueOn.ToString("d MMM yyyy")</td>
+                        <td class="right money c-amount">@r.Invoice.Balance.Rm()</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</section>
 
 @if (User.IsInRole("Owner"))
 {
-    <p><a asp-page="/Settings">Business settings</a></p>
+    <p class="small"><a asp-page="/Settings">Business settings</a></p>
 }

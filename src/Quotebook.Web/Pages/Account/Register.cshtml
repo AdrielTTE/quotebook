@@ -2,45 +2,48 @@
 @model RegisterModel
 @{ ViewData["Title"] = "Create your account"; }
 
-<h1>Create your account</h1>
+<div class="page-head"><h1>Create your account</h1></div>
 
 @if (!Model.Open)
 {
-    <div class="alert alert-info col-md-6">
-        Sign-up is closed on this demo.
+    <div class="alert info" style="max-width: 560px;">
+        <p>Sign-up is closed on this demo.</p>
         @if (Model.DemoEnabled)
         {
-            <form method="post" asp-page="Demo" class="mt-2"><button type="submit" class="btn btn-primary">Try the demo instead</button></form>
+            <form method="post" asp-page="Demo" style="margin-top: 12px;"><button type="submit" class="btn">Try the demo instead</button></form>
         }
     </div>
     return;
 }
-<p class="text-muted">Signing up opens your own business space. Nobody else can see your customers, quotes or invoices.</p>
 
-<form method="post" class="col-md-5" novalidate>
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="mb-3">
-        <label asp-for="Input.DisplayName" class="form-label">Your name</label>
-        <input asp-for="Input.DisplayName" class="form-control" autocomplete="name" />
-        <span asp-validation-for="Input.DisplayName" class="text-danger"></span>
+<p class="muted" style="max-width: 560px;">Signing up opens your own business space. Nobody else can see your customers, quotes or invoices.</p>
+
+<form method="post" class="form" novalidate>
+    <div asp-validation-summary="ModelOnly" class="field-error"></div>
+    <div class="field">
+        <label asp-for="Input.DisplayName">Your name</label>
+        <input asp-for="Input.DisplayName" autocomplete="name" />
+        <span asp-validation-for="Input.DisplayName" class="field-error"></span>
     </div>
-    <div class="mb-3">
-        <label asp-for="Input.Email" class="form-label">Email</label>
-        <input asp-for="Input.Email" class="form-control" autocomplete="email" />
-        <span asp-validation-for="Input.Email" class="text-danger"></span>
+    <div class="field">
+        <label asp-for="Input.Email">Email</label>
+        <input asp-for="Input.Email" autocomplete="email" />
+        <span asp-validation-for="Input.Email" class="field-error"></span>
     </div>
-    <div class="mb-3">
-        <label asp-for="Input.Password" class="form-label">Password (10+ characters)</label>
-        <input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
-        <span asp-validation-for="Input.Password" class="text-danger"></span>
+    <div class="field">
+        <label asp-for="Input.Password">Password (10+ characters)</label>
+        <input asp-for="Input.Password" autocomplete="new-password" />
+        <span asp-validation-for="Input.Password" class="field-error"></span>
     </div>
-    <div class="mb-3">
-        <label asp-for="Input.ConfirmPassword" class="form-label">Confirm password</label>
-        <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" />
-        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+    <div class="field">
+        <label asp-for="Input.ConfirmPassword">Confirm password</label>
+        <input asp-for="Input.ConfirmPassword" autocomplete="new-password" />
+        <span asp-validation-for="Input.ConfirmPassword" class="field-error"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Create account</button>
-    <a asp-page="Login" class="btn btn-link">I already have an account</a>
+    <div class="actions">
+        <button type="submit" class="btn">Create account</button>
+        <a asp-page="Login" class="btn secondary">I already have an account</a>
+    </div>
 </form>
 
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

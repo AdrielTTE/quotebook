@@ -84,7 +84,14 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>
         BaseAddress = new Uri("https://localhost"), // the auth cookie is Secure-only
     });
 
-    static readonly Regex Token = new("name=\"__RequestVerificationToken\"[^>]*value=\"([^\"]+)\"", RegexOptions.Compiled);
+    /// <summary>The text a visitor sees: tags removed, entities decoded, whitespace collapsed.</summary>
+    public static string TextOf(string html)
+    {
+        var withoutTags = Regex.Replace(html, "<[^>]+>", " ");
+        return Regex.Replace(System.Net.WebUtility.HtmlDecode(withoutTags), @"\s+", " ").Trim();
+    }
+
+    static readonly Regex Token =new("name=\"__RequestVerificationToken\"[^>]*value=\"([^\"]+)\"", RegexOptions.Compiled);
 
     /// <summary>Loads a page and returns its anti-forgery token, as a browser form would send it back.</summary>
     public static async Task<string> TokenFromAsync(HttpClient client, string path)

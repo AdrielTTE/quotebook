@@ -1,40 +1,33 @@
 @page
 @model Quotebook.Web.Pages.Quotes.IndexModel
-@using Quotebook.Core.Entities
+@using Quotebook.Web.Infrastructure
 @{ ViewData["Title"] = "Quotations"; }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0">Quotations</h1>
-    <a asp-page="Edit" class="btn btn-primary">New quotation</a>
+<div class="page-head">
+    <h1>Quotations</h1>
+    <div class="actions"><a asp-page="Edit" class="btn">New quotation</a></div>
 </div>
 
-@if (Model.Message is not null) { <div class="alert alert-success">@Model.Message</div> }
+@if (Model.Message is not null) { <div class="alert success">@Model.Message</div> }
 
 @if (Model.Quotes.Count == 0)
 {
-    <p class="text-muted">No quotations yet. Create your first one.</p>
+    <div class="panel"><p class="empty">No quotations yet. Create your first one.</p></div>
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table align-middle">
-            <thead><tr><th>Number</th><th>Customer</th><th>Status</th><th>Valid until</th><th class="text-end">Total (RM)</th></tr></thead>
+    <div class="panel table-wrap">
+        <table class="ledger cards">
+            <thead><tr><th>Number</th><th>Customer</th><th>Status</th><th>Valid until</th><th class="right">Total (RM)</th></tr></thead>
             <tbody>
             @foreach (var q in Model.Quotes)
             {
-                var badge = q.Status switch
-                {
-                    QuoteStatus.Draft => "secondary",
-                    QuoteStatus.Sent => "primary",
-                    QuoteStatus.Accepted => "success",
-                    _ => "danger",
-                };
                 <tr>
-                    <td><a asp-page="Details" asp-route-id="@q.Id">@q.Number</a></td>
-                    <td>@q.Customer?.Name</td>
-                    <td><span class="badge text-bg-@badge">@q.Status</span></td>
-                    <td>@q.ValidUntil.ToString("d MMM yyyy")</td>
-                    <td class="text-end">@q.Total.ToString("N2")</td>
+                    <td class="c-ref"><a asp-page="Details" asp-route-id="@q.Id" class="ref">@q.Number</a></td>
+                    <td class="c-title">@q.Customer?.Name</td>
+                    <td class="c-status"><span class="status @q.Status.Css()">@q.Status.Label()</span></td>
+                    <td class="muted c-meta">valid until @q.ValidUntil.ToString("d MMM yyyy")</td>
+                    <td class="right money c-amount">@q.Total.Rm()</td>
                 </tr>
             }
             </tbody>

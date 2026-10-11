@@ -1,27 +1,37 @@
 @page
 @model LoginModel
+@inject Quotebook.Web.Infrastructure.AppFeatures Features
 @{ ViewData["Title"] = "Sign in"; }
 
-<h1>Sign in</h1>
+<div class="page-head"><h1>Sign in</h1></div>
 
-<form method="post" class="col-md-5" novalidate>
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="mb-3">
-        <label asp-for="Input.Email" class="form-label">Email</label>
-        <input asp-for="Input.Email" class="form-control" autocomplete="username" />
-        <span asp-validation-for="Input.Email" class="text-danger"></span>
+<form method="post" class="form" novalidate>
+    <div asp-validation-summary="ModelOnly" class="field-error"></div>
+    <div class="field">
+        <label asp-for="Input.Email">Email</label>
+        <input asp-for="Input.Email" autocomplete="username" />
+        <span asp-validation-for="Input.Email" class="field-error"></span>
     </div>
-    <div class="mb-3">
-        <label asp-for="Input.Password" class="form-label">Password</label>
-        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" />
-        <span asp-validation-for="Input.Password" class="text-danger"></span>
+    <div class="field">
+        <label asp-for="Input.Password">Password</label>
+        <input asp-for="Input.Password" autocomplete="current-password" />
+        <span asp-validation-for="Input.Password" class="field-error"></span>
     </div>
-    <div class="form-check mb-3">
-        <input asp-for="Input.RememberMe" class="form-check-input" />
-        <label asp-for="Input.RememberMe" class="form-check-label">Keep me signed in</label>
+    <label class="check"><input asp-for="Input.RememberMe" /> Keep me signed in</label>
+    <div class="actions">
+        <button type="submit" class="btn">Sign in</button>
+        @if (Features.RegistrationOpen)
+        {
+            <a asp-page="Register" class="btn secondary">Create an account</a>
+        }
     </div>
-    <button type="submit" class="btn btn-primary">Sign in</button>
-    <a asp-page="Register" class="btn btn-link">Create an account</a>
 </form>
+
+@if (Features.DemoEnabled)
+{
+    <form method="post" asp-page="Demo" class="inline">
+        <p class="muted small">Just looking? <button type="submit" class="link-button" style="min-height: 0;">Try the demo</button> with sample data.</p>
+    </form>
+}
 
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }
