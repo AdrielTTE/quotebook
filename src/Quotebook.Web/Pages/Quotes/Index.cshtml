@@ -1,0 +1,43 @@
+@page
+@model Quotebook.Web.Pages.Quotes.IndexModel
+@using Quotebook.Core.Entities
+@{ ViewData["Title"] = "Quotations"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Quotations</h1>
+    <a asp-page="Edit" class="btn btn-primary">New quotation</a>
+</div>
+
+@if (Model.Message is not null) { <div class="alert alert-success">@Model.Message</div> }
+
+@if (Model.Quotes.Count == 0)
+{
+    <p class="text-muted">No quotations yet. Create your first one.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Number</th><th>Customer</th><th>Status</th><th>Valid until</th><th class="text-end">Total (RM)</th></tr></thead>
+            <tbody>
+            @foreach (var q in Model.Quotes)
+            {
+                var badge = q.Status switch
+                {
+                    QuoteStatus.Draft => "secondary",
+                    QuoteStatus.Sent => "primary",
+                    QuoteStatus.Accepted => "success",
+                    _ => "danger",
+                };
+                <tr>
+                    <td><a asp-page="Details" asp-route-id="@q.Id">@q.Number</a></td>
+                    <td>@q.Customer?.Name</td>
+                    <td><span class="badge text-bg-@badge">@q.Status</span></td>
+                    <td>@q.ValidUntil.ToString("d MMM yyyy")</td>
+                    <td class="text-end">@q.Total.ToString("N2")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

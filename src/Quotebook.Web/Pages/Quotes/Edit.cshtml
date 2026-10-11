@@ -1,0 +1,75 @@
+@page "{id:int?}"
+@model Quotebook.Web.Pages.Quotes.EditModel
+@{ ViewData["Title"] = Model.Id is null ? "New quotation" : $"Edit {Model.Number}"; }
+
+<h1>@ViewData["Title"]</h1>
+
+@if (Model.Customers.Count == 0)
+{
+    <div class="alert alert-info">You need a customer first. <a asp-page="/Customers/Edit">Add one</a>, then come back.</div>
+}
+
+<form method="post" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Input.Version" />
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-5">
+            <label asp-for="Input.CustomerId" class="form-label">Customer</label>
+            <select asp-for="Input.CustomerId" asp-items="Model.Customers" class="form-select">
+                <option value="0">Choose a customer</option>
+            </select>
+            <span asp-validation-for="Input.CustomerId" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 col-6">
+            <label asp-for="Input.IssuedOn" class="form-label">Issued</label>
+            <input asp-for="Input.IssuedOn" class="form-control" />
+            <span asp-validation-for="Input.IssuedOn" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 col-6">
+            <label asp-for="Input.ValidUntil" class="form-label">Valid until</label>
+            <input asp-for="Input.ValidUntil" class="form-control" />
+            <span asp-validation-for="Input.ValidUntil" class="text-danger"></span>
+        </div>
+    </div>
+
+    <h2 class="h5">Lines</h2>
+    <div id="lines">
+        <div class="row g-2 text-muted small d-none d-md-flex">
+            <div class="col-md-6">Description</div><div class="col-md-2">Quantity</div><div class="col-md-3">Unit price (RM)</div>
+        </div>
+        @for (var i = 0; i < Model.Input.Lines.Count; i++)
+        {
+            <div class="row g-2 mb-2 line-row">
+                <div class="col-md-6"><input asp-for="Input.Lines[i].Description" class="form-control" placeholder="Description" aria-label="Description" /></div>
+                <div class="col-6 col-md-2"><input asp-for="Input.Lines[i].Quantity" class="form-control" inputmode="decimal" aria-label="Quantity" /></div>
+                <div class="col-6 col-md-3"><input asp-for="Input.Lines[i].UnitPrice" class="form-control" inputmode="decimal" aria-label="Unit price" /></div>
+            </div>
+        }
+    </div>
+    <button type="button" id="add-line" class="btn btn-sm btn-outline-secondary mb-4">Add another line</button>
+
+    <div>
+        <button type="submit" class="btn btn-primary">Save quotation</button>
+        <a asp-page="Index" class="btn btn-link">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Clone the last line row and bump its index so the model binder sees one more item.
+        document.getElementById('add-line').addEventListener('click', () => {
+            const rows = document.querySelectorAll('.line-row');
+            const next = rows.length;
+            const copy = rows[rows.length - 1].cloneNode(true);
+            copy.querySelectorAll('input').forEach(input => {
+                input.name = input.name.replace(/Lines\[\d+\]/, 'Lines[' + next + ']');
+                input.id = input.id.replace(/Lines_\d+__/, 'Lines_' + next + '__');
+                input.value = input.name.endsWith('.Quantity') ? '1' : (input.name.endsWith('.UnitPrice') ? '0' : '');
+            });
+            rows[rows.length - 1].after(copy);
+            copy.querySelector('input').focus();
+        });
+    </script>
+}

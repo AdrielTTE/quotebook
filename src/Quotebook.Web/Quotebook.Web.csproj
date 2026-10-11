@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\Quotebook.Core\Quotebook.Core.csproj" />
@@ -13,6 +13,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>07541184-c743-40e2-983c-22995c6d2726</UserSecretsId>
   </PropertyGroup>
 
 </Project>

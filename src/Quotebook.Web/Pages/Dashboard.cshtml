@@ -8,7 +8,7 @@
 }
 
 <h1>Dashboard</h1>
-<p>Signed in as <strong>@me?.DisplayName</strong>. Customers, quotes and invoices will appear here.</p>
+<p>Signed in as <strong>@me?.DisplayName</strong>. Start with your <a asp-page="/Customers/Index">customers</a>, then write a <a asp-page="/Quotes/Index">quotation</a>.</p>
 @if (User.IsInRole("Owner"))
 {
     <p><a asp-page="/Settings">Business settings</a></p>

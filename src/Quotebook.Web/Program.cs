@@ -20,6 +20,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("OwnerOnly", p => p.RequireRole(Roles.Owner));
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<MalaysiaTimeProvider>();
 builder.Services.AddScoped<ITenantProvider, ClaimsTenantProvider>();
 
 // Connection string comes from user-secrets in development and an environment
@@ -28,7 +29,8 @@ var connection = builder.Configuration.GetConnectionString("Default");
 var hasDatabase = !string.IsNullOrWhiteSpace(connection);
 if (hasDatabase)
 {
-    builder.Services.AddDbContext<QuotebookDbContext>(o => o.UseNpgsql(connection));
+    // Retry briefly on transient failures: Neon's free database sleeps when idle and the first query can fail while it wakes.
+    builder.Services.AddDbContext<QuotebookDbContext>(o => o.UseNpgsql(connection, n => n.EnableRetryOnFailure(maxRetryCount: 4, maxRetryDelay: TimeSpan.FromSeconds(5), errorCodesToAdd: null)));
     builder.Services.AddHealthChecks().AddDbContextCheck<QuotebookDbContext>("database");
 
     builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o =>

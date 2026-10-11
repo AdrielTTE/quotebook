@@ -12,7 +12,7 @@ public class LineItem
 
     public LineItem Copy() => new() { Description = Description, Quantity = Quantity, UnitPrice = UnitPrice };
 
-    internal void Validate()
+    public void Validate()
     {
         if (string.IsNullOrWhiteSpace(Description)) throw new DomainException("A line needs a description.");
         if (Quantity <= 0) throw new DomainException("Quantity must be greater than zero.");
