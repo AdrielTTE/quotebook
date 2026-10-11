@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Quotebook.Core;
@@ -18,6 +19,15 @@ builder.Services.AddRazorPages(o =>
 builder.Services.AddAuthorizationBuilder()
     .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
     .AddPolicy("OwnerOnly", p => p.RequireRole(Roles.Owner));
+
+// Behind a host like Render, TLS ends at the proxy and the app sees plain http. Trust its forwarded
+// headers so redirects, the Secure sign-in cookie and client addresses are right.
+builder.Services.Configure<ForwardedHeadersOptions>(o =>
+{
+    o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    o.KnownIPNetworks.Clear();
+    o.KnownProxies.Clear();
+});
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<MalaysiaTimeProvider>();
@@ -69,7 +79,19 @@ else
 
 var app = builder.Build();
 
-if (hasDatabase) await RoleSeeder.SeedAsync(app.Services);
+if (hasDatabase)
+{
+    // Opt-in (MigrateOnStart=true) so a deploy brings the database up to date. Fine for a one-instance demo;
+    // a larger system would run migrations as a separate release step.
+    if (app.Configuration.GetValue<bool>("MigrateOnStart"))
+    {
+        using var scope = app.Services.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<QuotebookDbContext>().Database.MigrateAsync();
+    }
+    await RoleSeeder.SeedAsync(app.Services);
+}
+
+app.UseForwardedHeaders();
 
 if (!app.Environment.IsDevelopment())
 {

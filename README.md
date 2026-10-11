@@ -40,3 +40,14 @@ dotnet test
 dotnet run --project src/Quotebook.Web
 ```
 Set the database with `dotnet user-secrets set "ConnectionStrings:Default" "<connection string>" --project src/Quotebook.Web`. Without it the app runs and `/health` reports healthy without a database.
+
+## Deploy (Render + Neon)
+The app ships as a Docker image (`Dockerfile`). Settings it reads from the environment:
+
+| Variable | Value |
+|---|---|
+| `ConnectionStrings__Default` | Npgsql connection string for the Neon database (direct host, `SSL Mode=Require`) |
+| `MigrateOnStart` | `true` to apply EF migrations when the app starts |
+| `ASPNETCORE_ENVIRONMENT` | `Production` |
+
+The app listens on port 10000 and trusts the host's forwarded headers, so the Secure sign-in cookie works behind Render's HTTPS proxy. CI (`.github/workflows/ci.yml`) builds and runs all tests on every push.
