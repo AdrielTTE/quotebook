@@ -31,6 +31,7 @@
 <div class="columns">
 
     <section class="main panel doc" aria-label="Invoice">
+        <div class="print-head"><strong>Invoice @inv.Number</strong><span>Issued by @User.FindFirst(TenantClaimsFactory.DisplayNameClaim)?.Value</span></div>
         <dl class="facts" style="margin: 0;">
             <div><dt>Billed to</dt><dd>@inv.Customer?.Name</dd></div>
             <div><dt>Issued</dt><dd>@inv.IssuedOn.ToString("d MMM yyyy")</dd></div>

@@ -15,6 +15,7 @@
         <p class="sub"><span class="status @q.Status.Css()">@q.Status.Label()</span> &nbsp; @q.Customer?.Name</p>
     </div>
     <div class="actions">
+        <button type="button" class="btn secondary" onclick="window.print()">Print</button>
         @if (q.Status == QuoteStatus.Draft)
         {
             <a asp-page="Edit" asp-route-id="@q.Id" class="btn secondary">Edit</a>
@@ -35,6 +36,7 @@
 @if (Model.Error is not null) { <div class="alert danger">@Model.Error</div> }
 
 <section class="panel doc" aria-label="Quotation">
+    <div class="print-head"><strong>Quotation @q.Number</strong><span>Prepared by @User.FindFirst(TenantClaimsFactory.DisplayNameClaim)?.Value</span></div>
     <dl class="facts" style="margin: 0;">
         <div><dt>Quoted to</dt><dd>@q.Customer?.Name</dd></div>
         <div><dt>Issued</dt><dd>@q.IssuedOn.ToString("d MMM yyyy")</dd></div>

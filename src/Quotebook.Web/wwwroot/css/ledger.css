@@ -325,9 +325,19 @@ table.lines td.num { font-family: var(--mono); text-align: right; }
   * { animation: none !important; transition: none !important; }
 }
 
+.print-head { display: none; }
+
 @media print {
-  .site-header, .site-footer, .main-nav, .actions, .side { display: none !important; }
-  body { background: #fff; }
+  @page { margin: 16mm; }
+  .site-header, .site-footer, .main-nav, .actions, .crumbs, .alert, .side, .tabs-only { display: none !important; }
+  body { background: #fff; color: #000; }
+  .panel { border: 0; box-shadow: none; }
+  .doc { padding: 0; }
+  .page-head h1 { display: none; }
+  .columns { display: block; }
+  .print-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 12px; border-bottom: 2px solid #000; }
+  .print-head strong { font-size: 20px; }
+  table.lines tr, .totals { break-inside: avoid; }
 }
 
 .attention .act { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
