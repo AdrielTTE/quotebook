@@ -51,3 +51,6 @@ The app ships as a Docker image (`Dockerfile`). Settings it reads from the envir
 | `ASPNETCORE_ENVIRONMENT` | `Production` |
 
 The app listens on port 10000 and trusts the host's forwarded headers, so the Secure sign-in cookie works behind Render's HTTPS proxy. CI (`.github/workflows/ci.yml`) builds and runs all tests on every push.
+
+## License
+MIT. See [LICENSE](LICENSE).
