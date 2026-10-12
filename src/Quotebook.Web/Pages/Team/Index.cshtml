@@ -1,0 +1,60 @@
+@page
+@model Quotebook.Web.Pages.Team.IndexModel
+@{ ViewData["Title"] = "Team"; }
+
+<div class="page-head"><h1>Team</h1></div>
+<p class="muted">Staff can work on quotations, invoices and payments. Only you can see settings and this page, or remove payments.</p>
+
+@if (Model.Message is not null) { <div class="alert success">@Model.Message</div> }
+@if (Model.Error is not null) { <div class="alert danger">@Model.Error</div> }
+@if (Model.InviteLink is not null)
+{
+    <div class="alert info">
+        <label for="invite-link" class="label">Invite link (copy it now, it is not shown again)</label>
+        <input id="invite-link" type="text" readonly value="@Model.InviteLink" onfocus="this.select()" class="money" />
+    </div>
+}
+
+<div class="panel table-wrap">
+    <table class="ledger cards">
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var m in Model.Members)
+        {
+            <tr>
+                <td class="c-title">@m.DisplayName</td>
+                <td class="c-meta">@m.Email</td>
+                <td class="c-status">@(m.IsOwner ? "Owner" : m.Pending ? "Staff (invite not accepted)" : "Staff")</td>
+                <td class="right c-actions">
+                    @if (!m.IsOwner)
+                    {
+                        <form method="post" asp-page-handler="Remove" asp-route-id="@m.Id" class="inline" onsubmit="return confirm('Remove this person?');">
+                            <button type="submit" class="link-button danger small" style="min-height: 0;">Remove</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<section class="panel pad" aria-label="Invite staff" style="margin-top: 20px;">
+    <h2 style="margin-bottom: 14px;">Invite staff</h2>
+    <form method="post" asp-page-handler="Invite" class="form" novalidate>
+        <div asp-validation-summary="ModelOnly" class="field-error"></div>
+        <div class="field">
+            <label asp-for="Invite.DisplayName">Name</label>
+            <input asp-for="Invite.DisplayName" autocomplete="off" />
+            <span asp-validation-for="Invite.DisplayName" class="field-error"></span>
+        </div>
+        <div class="field">
+            <label asp-for="Invite.Email">Email</label>
+            <input asp-for="Invite.Email" autocomplete="off" />
+            <span asp-validation-for="Invite.Email" class="field-error"></span>
+        </div>
+        <div><button type="submit" class="btn">Create invite link</button></div>
+    </form>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

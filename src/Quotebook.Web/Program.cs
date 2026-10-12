@@ -60,6 +60,7 @@ if (hasDatabase)
             o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
         })
         .AddEntityFrameworkStores<QuotebookDbContext>()
+        .AddDefaultTokenProviders() // one-time tokens for staff invite links
         .AddClaimsPrincipalFactory<TenantClaimsFactory>();
 
     if (builder.Configuration.GetValue<bool>("Demo:Enabled"))

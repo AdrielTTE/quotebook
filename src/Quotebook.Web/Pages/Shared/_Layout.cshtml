@@ -48,6 +48,7 @@
                     <span class="avatar" aria-hidden="true">@initials</span>
                     @if (User.IsInRole(Quotebook.Core.Roles.Owner))
                     {
+                        <a asp-page="/Team/Index" class="link-button">Team</a>
                         <a asp-page="/Settings" class="link-button">Settings</a>
                     }
                     <form method="post" asp-page="/Account/Logout" class="inline">

@@ -1,0 +1,25 @@
+@page
+@model AcceptInviteModel
+@{ ViewData["Title"] = "Set your password"; }
+
+<div class="page-head"><h1>Set your password</h1></div>
+<p class="muted" style="max-width: 560px;">Welcome, @Model.DisplayName. Choose a password to join your team on Quotebook.</p>
+
+<form method="post" class="form" novalidate>
+    <input type="hidden" asp-for="UserId" />
+    <input type="hidden" asp-for="Token" />
+    <div asp-validation-summary="ModelOnly" class="field-error"></div>
+    <div class="field">
+        <label asp-for="Input.Password">Password (10+ characters)</label>
+        <input asp-for="Input.Password" autocomplete="new-password" />
+        <span asp-validation-for="Input.Password" class="field-error"></span>
+    </div>
+    <div class="field">
+        <label asp-for="Input.ConfirmPassword">Confirm password</label>
+        <input asp-for="Input.ConfirmPassword" autocomplete="new-password" />
+        <span asp-validation-for="Input.ConfirmPassword" class="field-error"></span>
+    </div>
+    <div class="actions"><button type="submit" class="btn">Save and sign in</button></div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

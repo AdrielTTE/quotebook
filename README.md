@@ -2,7 +2,7 @@
 
 A quotation and invoice tracker for small service businesses, built to show how I structure an ASP.NET Core system. It is a portfolio demo, not a product with real customers.
 
-**Status:** deployed and usable as a demo. Live: https://quotebook-oe9t.onrender.com/ (free tier, so the first load can take about 30 seconds). Done: domain rules, schema, sign-up/sign-in with roles, tenant isolation, customers, quotations, invoices from accepted quotations, payments with derived status, dashboard, CI, Docker and deployment. Print-ready quotes and invoices (browser print or Save as PDF).
+**Status:** deployed and usable as a demo. Live: https://quotebook-oe9t.onrender.com/ (free tier, so the first load can take about 30 seconds). Done: domain rules, schema, sign-up/sign-in with roles, tenant isolation, customers, quotations, invoices from accepted quotations, payments with derived status, dashboard, CI, Docker and deployment. Print-ready quotes and invoices (browser print or Save as PDF) with a business letterhead, search on every list, and staff invites by one-time link (no email service, so the owner passes the link on).
 
 ## Stack
 - .NET 10 (LTS), ASP.NET Core Razor Pages
