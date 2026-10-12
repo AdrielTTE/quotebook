@@ -11,6 +11,7 @@ public class QuotebookDbContext(DbContextOptions<QuotebookDbContext> options, IT
     // Read per query, so each request filters on its own tenant. Null matches nothing.
     string? CurrentTenantId => tenant.TenantId;
 
+    public DbSet<Business> Businesses => Set<Business>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Quote> Quotes => Set<Quote>();
     public DbSet<Invoice> Invoices => Set<Invoice>();
@@ -25,6 +26,16 @@ public class QuotebookDbContext(DbContextOptions<QuotebookDbContext> options, IT
             e.Property(x => x.TenantId).HasMaxLength(450).IsRequired();
             e.Property(x => x.DisplayName).HasMaxLength(100);
             e.HasIndex(x => x.TenantId);
+        });
+
+        b.Entity<Business>(e =>
+        {
+            e.Property(x => x.Id).HasMaxLength(450);
+            e.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            e.Property(x => x.Address).HasMaxLength(500);
+            e.Property(x => x.Phone).HasMaxLength(50);
+            e.Property(x => x.Email).HasMaxLength(320);
+            e.HasQueryFilter(x => x.Id == CurrentTenantId);
         });
 
         b.Entity<Customer>(e =>

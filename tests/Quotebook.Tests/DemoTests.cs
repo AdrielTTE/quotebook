@@ -113,6 +113,7 @@ public class DemoTests : IClassFixture<WebAppFactory>
 
         var post = await client.PostAsync("/Account/Register", new FormUrlEncodedContent(new Dictionary<string, string>
         {
+            ["Input.BusinessName"] = "Sneaky Co",
             ["Input.DisplayName"] = "Sneaky",
             ["Input.Email"] = "sneaky@example.com",
             ["Input.Password"] = "correct-horse-battery",

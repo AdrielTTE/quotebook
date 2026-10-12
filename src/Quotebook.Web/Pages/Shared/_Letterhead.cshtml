@@ -1,0 +1,17 @@
+@model Quotebook.Web.Infrastructure.LetterheadModel
+
+@* Shown on screen and on paper: who issued this document, then what it is. *@
+<header class="letterhead">
+    <div class="from">
+        <strong class="biz">@Model.Name</strong>
+        @if (!string.IsNullOrWhiteSpace(Model.Address))
+        {
+            <span class="addr">@Model.Address</span>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Phone) || !string.IsNullOrWhiteSpace(Model.Email))
+        {
+            <span class="contact">@string.Join(" · ", new[] { Model.Phone, Model.Email }.Where(s => !string.IsNullOrWhiteSpace(s)))</span>
+        }
+    </div>
+    <div class="kind"><span>@Model.Type</span><span class="kind-num">@Model.Number</span></div>
+</header>

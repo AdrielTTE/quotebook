@@ -11,6 +11,7 @@ namespace Quotebook.Web.Pages.Quotes;
 public class DetailsModel(QuotebookDbContext db, MalaysiaTimeProvider clock) : PageModel
 {
     public Quote Quote { get; private set; } = null!;
+    public Business? Business { get; private set; }
 
     [TempData] public string? Message { get; set; }
     [TempData] public string? Error { get; set; }
@@ -20,6 +21,7 @@ public class DetailsModel(QuotebookDbContext db, MalaysiaTimeProvider clock) : P
         var quote = await Load(id, track: false);
         if (quote is null) return NotFound();
         Quote = quote;
+        Business = await db.Businesses.AsNoTracking().FirstOrDefaultAsync();
         return Page();
     }
 

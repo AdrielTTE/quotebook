@@ -26,6 +26,12 @@ public sealed class DemoSeeder(IServiceScopeFactory scopes, MalaysiaTimeProvider
         using var db = new QuotebookDbContext(sp.GetRequiredService<DbContextOptions<QuotebookDbContext>>(), new FixedTenant(user.TenantId));
 
         await WipeAsync(db, ct);
+        var business = await db.Businesses.FirstOrDefaultAsync(ct);
+        if (business is null) db.Businesses.Add(business = new Business { Id = user.TenantId });
+        business.Name = "Demo Fit-Out & Services";
+        business.Address = "12 Jalan Contoh, Taman Demo\n50000 Kuala Lumpur";
+        business.Phone = "03-1234 5678";
+        business.Email = "hello@demo-fitout.example";
         Seed(db, clock.Today);
         await db.SaveChangesAsync(ct);
     }

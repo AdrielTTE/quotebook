@@ -21,6 +21,11 @@
 <form method="post" class="form" novalidate>
     <div asp-validation-summary="ModelOnly" class="field-error"></div>
     <div class="field">
+        <label asp-for="Input.BusinessName">Business name</label>
+        <input asp-for="Input.BusinessName" autocomplete="organization" />
+        <span asp-validation-for="Input.BusinessName" class="field-error"></span>
+    </div>
+    <div class="field">
         <label asp-for="Input.DisplayName">Your name</label>
         <input asp-for="Input.DisplayName" autocomplete="name" />
         <span asp-validation-for="Input.DisplayName" class="field-error"></span>

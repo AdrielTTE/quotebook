@@ -11,17 +11,23 @@
     </div>
 </div>
 
+<form method="get" class="search">
+    <input type="search" name="q" value="@Model.Q" placeholder="Search number or customer" aria-label="Search invoices" />
+    @if (Model.Status is not null) { <input type="hidden" name="status" value="@Model.Status" /> }
+    <button class="btn secondary" type="submit">Search</button>
+</form>
+
 <ul class="chips" aria-label="Filter by status">
-    <li><a asp-page="Index" aria-current="@(Model.Status is null ? "page" : null)">All</a></li>
+    <li><a asp-page="Index" asp-route-q="@Model.Q" aria-current="@(Model.Status is null ? "page" : null)">All</a></li>
     @foreach (var s in Enum.GetValues<InvoiceStatus>())
     {
-        <li><a asp-page="Index" asp-route-status="@s" aria-current="@(Model.Status == s ? "page" : null)">@s.Label()</a></li>
+        <li><a asp-page="Index" asp-route-q="@Model.Q" asp-route-status="@s" aria-current="@(Model.Status == s ? "page" : null)">@s.Label()</a></li>
     }
 </ul>
 
 @if (Model.Rows.Count == 0)
 {
-    <div class="panel"><p class="empty">No invoices here yet.</p></div>
+    <div class="panel"><p class="empty">@(string.IsNullOrWhiteSpace(Model.Q) ? "No invoices here yet." : "No invoices match that search.")</p></div>
 }
 else
 {

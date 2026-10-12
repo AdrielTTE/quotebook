@@ -12,6 +12,7 @@ namespace Quotebook.Web.Pages.Invoices;
 public class DetailsModel(QuotebookDbContext db, MalaysiaTimeProvider clock) : PageModel
 {
     public Invoice Invoice { get; private set; } = null!;
+    public Business? Business { get; private set; }
     public InvoiceStatus Status { get; private set; }
     public DateOnly Today => clock.Today;
 
@@ -33,6 +34,7 @@ public class DetailsModel(QuotebookDbContext db, MalaysiaTimeProvider clock) : P
         if (invoice is null) return NotFound();
 
         Show(invoice);
+        Business = await db.Businesses.AsNoTracking().FirstOrDefaultAsync();
         Payment = new PaymentInput { PaidOn = clock.Today, Amount = invoice.Balance > 0 ? invoice.Balance : 0 };
         return Page();
     }
@@ -45,6 +47,7 @@ public class DetailsModel(QuotebookDbContext db, MalaysiaTimeProvider clock) : P
         if (!ModelState.IsValid)
         {
             Show(invoice);
+            Business = await db.Businesses.AsNoTracking().FirstOrDefaultAsync();
             return Page();
         }
 

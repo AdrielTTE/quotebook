@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Quotebook.Core;
+using Quotebook.Core.Entities;
 using Quotebook.Data;
 using Quotebook.Web.Infrastructure;
 
 namespace Quotebook.Web.Pages.Account;
 
-public class RegisterModel(UserManager<ApplicationUser> users, SignInManager<ApplicationUser> signIn, AppFeatures features) : PageModel
+public class RegisterModel(UserManager<ApplicationUser> users, SignInManager<ApplicationUser> signIn, QuotebookDbContext db, AppFeatures features) : PageModel
 {
     /// <summary>False on a public demo that has closed open sign-up.</summary>
     public bool Open => features.RegistrationOpen;
@@ -18,6 +19,7 @@ public class RegisterModel(UserManager<ApplicationUser> users, SignInManager<App
 
     public class InputModel
     {
+        [Required, StringLength(200)] public string BusinessName { get; set; } = "";
         [Required, StringLength(100)] public string DisplayName { get; set; } = "";
         [Required, EmailAddress] public string Email { get; set; } = "";
         [Required, DataType(DataType.Password)] public string Password { get; set; } = "";
@@ -43,6 +45,8 @@ public class RegisterModel(UserManager<ApplicationUser> users, SignInManager<App
             return Page();
         }
 
+        db.Businesses.Add(new Business { Id = user.TenantId, Name = Input.BusinessName.Trim() });
+        await db.SaveChangesAsync();
         await users.AddToRoleAsync(user, Roles.Owner);
         await signIn.SignInAsync(user, isPersistent: false);
         return RedirectToPage("/Dashboard");

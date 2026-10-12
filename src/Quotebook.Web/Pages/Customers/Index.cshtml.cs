@@ -20,7 +20,9 @@ public class IndexModel(QuotebookDbContext db) : PageModel
         if (!string.IsNullOrWhiteSpace(Q))
         {
             var term = Q.Trim().ToLower();
-            query = query.Where(c => c.Name.ToLower().Contains(term));
+            query = query.Where(c => c.Name.ToLower().Contains(term)
+                || (c.Email != null && c.Email.ToLower().Contains(term))
+                || (c.Phone != null && c.Phone.Contains(term)));
         }
         Customers = await query.OrderBy(c => c.Name).ToListAsync();
     }

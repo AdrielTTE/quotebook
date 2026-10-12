@@ -12,14 +12,20 @@ public class IndexModel(QuotebookDbContext db, MalaysiaTimeProvider clock) : Pag
     public record Row(Invoice Invoice, InvoiceStatus Status);
 
     [BindProperty(SupportsGet = true)] public InvoiceStatus? Status { get; set; }
+    [BindProperty(SupportsGet = true)] public string? Q { get; set; }
     public List<Row> Rows { get; private set; } = [];
 
     public async Task OnGetAsync()
     {
-        var invoices = await db.Invoices.AsNoTracking()
+        var query = db.Invoices.AsNoTracking()
             .Include(i => i.Customer).Include(i => i.Lines).Include(i => i.Payments)
-            .OrderByDescending(i => i.IssuedOn).ThenByDescending(i => i.Id)
-            .ToListAsync();
+            .AsQueryable();
+        if (!string.IsNullOrWhiteSpace(Q))
+        {
+            var term = Q.Trim().ToLower();
+            query = query.Where(i => i.Number.ToLower().Contains(term) || i.Customer!.Name.ToLower().Contains(term));
+        }
+        var invoices = await query.OrderByDescending(i => i.IssuedOn).ThenByDescending(i => i.Id).ToListAsync();
 
         // Status depends on today's date and the payments, so it is worked out here, not stored.
         var today = clock.Today;

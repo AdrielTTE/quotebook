@@ -6,6 +6,7 @@
 @{
     var inv = Model.Invoice;
     ViewData["Title"] = inv.Number;
+    var head = LetterheadModel.For(Model.Business, User.FindFirst(TenantClaimsFactory.DisplayNameClaim)?.Value ?? "", "Invoice", inv.Number);
     var percentPaid = inv.Total > 0 ? (int)Math.Round(inv.Paid / inv.Total * 100) : 0;
 }
 
@@ -31,7 +32,7 @@
 <div class="columns">
 
     <section class="main panel doc" aria-label="Invoice">
-        <div class="print-head"><strong>Invoice @inv.Number</strong><span>Issued by @User.FindFirst(TenantClaimsFactory.DisplayNameClaim)?.Value</span></div>
+        <partial name="_Letterhead" model="head" />
         <dl class="facts" style="margin: 0;">
             <div><dt>Billed to</dt><dd>@inv.Customer?.Name</dd></div>
             <div><dt>Issued</dt><dd>@inv.IssuedOn.ToString("d MMM yyyy")</dd></div>

@@ -46,6 +46,10 @@
                 {
                     <span class="name-text">@displayName</span>
                     <span class="avatar" aria-hidden="true">@initials</span>
+                    @if (User.IsInRole(Quotebook.Core.Roles.Owner))
+                    {
+                        <a asp-page="/Settings" class="link-button">Settings</a>
+                    }
                     <form method="post" asp-page="/Account/Logout" class="inline">
                         <button type="submit" class="link-button">Sign out</button>
                     </form>

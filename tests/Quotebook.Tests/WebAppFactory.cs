@@ -109,6 +109,7 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>
     public static Task<HttpResponseMessage> RegisterAsync(HttpClient client, string email, string password = "correct-horse-battery", string name = "Test Owner")
         => PostFormAsync(client, "/Account/Register", new()
         {
+            ["Input.BusinessName"] = name + " Co",
             ["Input.DisplayName"] = name,
             ["Input.Email"] = email,
             ["Input.Password"] = password,

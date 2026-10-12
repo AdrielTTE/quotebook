@@ -5,6 +5,7 @@
 @{
     var q = Model.Quote;
     ViewData["Title"] = q.Number;
+    var head = LetterheadModel.For(Model.Business, User.FindFirst(TenantClaimsFactory.DisplayNameClaim)?.Value ?? "", "Quotation", q.Number);
 }
 
 <div class="crumbs"><a asp-page="Index">Quotations</a> <span aria-hidden="true">/</span> @q.Number</div>
@@ -36,7 +37,7 @@
 @if (Model.Error is not null) { <div class="alert danger">@Model.Error</div> }
 
 <section class="panel doc" aria-label="Quotation">
-    <div class="print-head"><strong>Quotation @q.Number</strong><span>Prepared by @User.FindFirst(TenantClaimsFactory.DisplayNameClaim)?.Value</span></div>
+    <partial name="_Letterhead" model="head" />
     <dl class="facts" style="margin: 0;">
         <div><dt>Quoted to</dt><dd>@q.Customer?.Name</dd></div>
         <div><dt>Issued</dt><dd>@q.IssuedOn.ToString("d MMM yyyy")</dd></div>

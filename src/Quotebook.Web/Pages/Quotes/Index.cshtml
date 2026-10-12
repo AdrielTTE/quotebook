@@ -10,9 +10,14 @@
 
 @if (Model.Message is not null) { <div class="alert success">@Model.Message</div> }
 
+<form method="get" class="search">
+    <input type="search" name="q" value="@Model.Q" placeholder="Search number or customer" aria-label="Search quotations" />
+    <button class="btn secondary" type="submit">Search</button>
+</form>
+
 @if (Model.Quotes.Count == 0)
 {
-    <div class="panel"><p class="empty">No quotations yet. Create your first one.</p></div>
+    <div class="panel"><p class="empty">@(string.IsNullOrWhiteSpace(Model.Q) ? "No quotations yet. Create your first one." : "No quotations match that search.")</p></div>
 }
 else
 {

@@ -11,7 +11,7 @@
 @if (Model.Error is not null) { <div class="alert danger">@Model.Error</div> }
 
 <form method="get" class="search">
-    <input type="search" name="q" value="@Model.Q" placeholder="Search by name" aria-label="Search customers" />
+    <input type="search" name="q" value="@Model.Q" placeholder="Search name, email or phone" aria-label="Search customers" />
     <button class="btn secondary" type="submit">Search</button>
 </form>
 
