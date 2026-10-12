@@ -1,10 +1,10 @@
 @page
 @model ErrorModel
-@{ ViewData["Title"] = Model.NotFound ? "Page not found" : "Something went wrong"; }
+@{ ViewData["Title"] = Model.IsNotFound ? "Page not found" : "Something went wrong"; }
 
-<div class="page-head"><h1>@(Model.NotFound ? "Page not found." : "Something went wrong.")</h1></div>
+<div class="page-head"><h1>@(Model.IsNotFound ? "Page not found." : "Something went wrong.")</h1></div>
 <p class="muted" style="max-width: 560px;">
-    @(Model.NotFound
+    @(Model.IsNotFound
         ? "That page does not exist, or the link is out of date."
         : "The page could not be shown. Nothing you entered was lost. Try again in a moment.")
 </p>

@@ -11,7 +11,7 @@ namespace Quotebook.Tests;
 /// <summary>Runs the real web app in memory, with the Postgres database swapped for an in-memory one.</summary>
 public sealed class WebAppFactory : WebApplicationFactory<Program>
 {
-    readonly string dbName = Guid.NewGuid().ToString();
+    readonly TestDatabase testDb = new();
 
     // Program.cs reads the connection string while it builds the host, before test configuration is applied,
     // so it has to come from the environment. Any value turns the database-backed setup on; it never connects.
@@ -33,7 +33,7 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>
                 && d.ServiceType.Name.StartsWith("IDbContextOptionsConfiguration")
                 && d.ServiceType.GenericTypeArguments.Contains(typeof(QuotebookDbContext))).ToList())
                 services.Remove(d);
-            services.AddDbContext<QuotebookDbContext>(o => o.UseInMemoryDatabase(dbName));
+            services.AddDbContext<QuotebookDbContext>(o => testDb.Configure(o));
         });
     }
 
@@ -46,7 +46,7 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>
     public async Task WithDbAsync(string tenantId, Func<QuotebookDbContext, Task> work)
     {
         using var db = new QuotebookDbContext(
-            new DbContextOptionsBuilder<QuotebookDbContext>().UseInMemoryDatabase(dbName).Options,
+            testDb.Options,
             new FixedTenant(tenantId));
         await work(db);
     }
@@ -75,6 +75,12 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>
         var response = await PostFormAsync(client, "/Account/Login", new() { ["Input.Email"] = email, ["Input.Password"] = "correct-horse-battery" });
         Assert.Equal(System.Net.HttpStatusCode.Redirect, response.StatusCode);
         return client;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing) testDb.Dispose();
     }
 
     public HttpClient NewClient() => CreateClient(new WebApplicationFactoryClientOptions

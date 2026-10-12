@@ -14,18 +14,19 @@ public class TenantIsolationTests
     }
 
     // One in-memory database shared by several contexts, each acting for a different tenant.
-    sealed class Db
+    sealed class Db : IDisposable
     {
-        readonly string name = Guid.NewGuid().ToString();
+        readonly TestDatabase database = new();
+        public void Dispose() => database.Dispose();
         public QuotebookDbContext As(string? tenant) => new(
-            new DbContextOptionsBuilder<QuotebookDbContext>().UseInMemoryDatabase(name).Options,
+            database.Options,
             new FixedTenant(tenant));
     }
 
     [Fact]
     public async Task Each_business_sees_only_its_own_customers()
     {
-        var db = new Db();
+        using var db = new Db();
         using (var a = db.As("A")) { a.Customers.Add(new Customer { Name = "Ali" }); await a.SaveChangesAsync(); }
         using (var b = db.As("B")) { b.Customers.Add(new Customer { Name = "Bala" }); await b.SaveChangesAsync(); }
 
@@ -37,7 +38,7 @@ public class TenantIsolationTests
     [Fact]
     public async Task Nobody_signed_in_sees_nothing()
     {
-        var db = new Db();
+        using var db = new Db();
         using (var a = db.As("A")) { a.Customers.Add(new Customer { Name = "Ali" }); await a.SaveChangesAsync(); }
 
         using var anon = db.As(null);
@@ -47,7 +48,7 @@ public class TenantIsolationTests
     [Fact]
     public async Task New_rows_are_stamped_with_the_current_tenant()
     {
-        var db = new Db();
+        using var db = new Db();
         using (var a = db.As("A")) { a.Customers.Add(new Customer { Name = "Ali" }); await a.SaveChangesAsync(); }
 
         using var verify = db.As("A");
@@ -73,7 +74,7 @@ public class TenantIsolationTests
     [Fact]
     public async Task Quotes_and_invoices_are_isolated_too()
     {
-        var db = new Db();
+        using var db = new Db();
         using (var a = db.As("A"))
         {
             var customer = new Customer { Name = "Ali" };

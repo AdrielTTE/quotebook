@@ -8,6 +8,21 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
+    # A throwaway PostgreSQL for the second test run below. It exists only for this job.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,5 +36,12 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Test
+      # Fast: an in-memory database. It does not enforce foreign keys, unique indexes or row versions.
+      - name: Test (in-memory)
         run: dotnet test --no-build --configuration Release --verbosity normal
+
+      # The same tests on real PostgreSQL, so those constraints are enforced.
+      - name: Test (PostgreSQL)
+        run: dotnet test --no-build --configuration Release --verbosity normal
+        env:
+          TEST_POSTGRES: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres

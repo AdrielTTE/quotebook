@@ -13,7 +13,7 @@ public class ErrorModel : PageModel
     /// <summary>The status the visitor actually got (404 for a missing page, 500 for a crash).</summary>
     public int Status { get; private set; }
 
-    public bool NotFound => Status == StatusCodes.Status404NotFound;
+    public bool IsNotFound => Status == StatusCodes.Status404NotFound;
 
     public void OnGet()
     {
