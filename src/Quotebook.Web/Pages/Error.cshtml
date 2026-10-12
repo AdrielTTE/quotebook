@@ -1,26 +1,15 @@
-﻿@page
+@page
 @model ErrorModel
-@{
-    ViewData["Title"] = "Error";
-}
+@{ ViewData["Title"] = Model.NotFound ? "Page not found" : "Something went wrong"; }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
-
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
-
-<h3>Development Mode</h3>
-<p>
-    Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred.
+<div class="page-head"><h1>@(Model.NotFound ? "Page not found." : "Something went wrong.")</h1></div>
+<p class="muted" style="max-width: 560px;">
+    @(Model.NotFound
+        ? "That page does not exist, or the link is out of date."
+        : "The page could not be shown. Nothing you entered was lost. Try again in a moment.")
 </p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+<div class="actions">
+    <a asp-page="/Dashboard" class="btn">Go to the dashboard</a>
+    <a asp-page="/Index" class="btn secondary">Home</a>
+</div>
+<p class="muted small" style="margin-top: 24px;">Reference: <code>@Model.RequestId</code></p>

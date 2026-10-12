@@ -1,7 +1,10 @@
 @page
 @model IndexModel
 @inject Quotebook.Web.Infrastructure.AppFeatures Features
-@{ ViewData["Title"] = "Quotations and invoices for small businesses"; }
+@{
+    ViewData["Title"] = "Quotations and invoices for small businesses";
+    ViewData["Description"] = "Write a quotation, get it accepted, turn it into an invoice and track who has paid. A live demo of an ASP.NET Core app for small service businesses. No sign-up needed.";
+}
 
 <section class="hero stack" style="gap: 20px;">
     <div>

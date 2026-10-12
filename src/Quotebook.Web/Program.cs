@@ -118,6 +118,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// A missing page gets the same friendly page as an error, with the real status code kept.
+app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
+
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
